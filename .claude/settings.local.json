@@ -52,7 +52,10 @@
       "WebFetch(domain:consumer.huawei.com)",
       "WebFetch(domain:communityhub.strava.com)",
       "WebFetch(domain:motion-app.com)",
-      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)"
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git tag *)"
     ]
   }
 }
