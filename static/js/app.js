@@ -84,7 +84,7 @@ function renderTypeSelector() {
     const container = document.getElementById('type-selector');
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
-                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-emerald-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
+                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-2 ring-emerald-400' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
             ${t.name}
         </button>
     `).join('');
@@ -93,15 +93,18 @@ function renderTypeSelector() {
 function selectType(type, btn) {
     state.selectedType = type;
     document.querySelectorAll('.type-btn').forEach(b => {
-        b.classList.remove('bg-white', 'text-emerald-600', 'shadow-sm', 'ring-1', 'ring-emerald-200');
+        b.classList.remove('bg-emerald-50', 'text-emerald-700', 'shadow-sm', 'ring-2', 'ring-emerald-400');
         b.classList.add('bg-slate-50', 'text-slate-400');
     });
     btn.classList.remove('bg-slate-50', 'text-slate-400');
-    btn.classList.add('bg-white', 'text-emerald-600', 'shadow-sm', 'ring-1', 'ring-emerald-200');
+    btn.classList.add('bg-emerald-50', 'text-emerald-700', 'shadow-sm', 'ring-2', 'ring-emerald-400');
 
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
     document.getElementById('dist-label').innerText = isCount ? '数量 (个)' : '距离 (km)';
+    const distInput = document.getElementById('input-dist');
+    distInput.value = '0';
+    distInput.step = isCount ? '1' : '0.1';
 }
 
 // --- Data Loading ---
@@ -126,6 +129,11 @@ async function saveRecord() {
 
     if (duration <= 0) {
         showToast('请输入有效时长');
+        return;
+    }
+    if (quantity <= 0) {
+        const label = document.getElementById('dist-label').innerText;
+        showToast(label === '数量 (个)' ? '请输入有效数量' : '请输入有效距离');
         return;
     }
 
@@ -376,6 +384,10 @@ function toggleModal(show) {
         const typeObj = state.types[0];
         const isCount = typeObj ? typeObj.unit === 'count' : false;
         document.getElementById('dist-label').innerText = isCount ? '数量 (个)' : '距离 (km)';
+        document.getElementById('input-dur').value = '0';
+        const distInput = document.getElementById('input-dist');
+        distInput.value = '0';
+        distInput.step = isCount ? '1' : '0.1';
     }
 
     if (show) {
