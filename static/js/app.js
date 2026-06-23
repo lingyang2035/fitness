@@ -222,7 +222,7 @@ function renderRecords() {
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
     // Single subtle accent — no per-type rainbow
-    const accent = '#10b981';
+    const accent = '#059669';
     const accentLight = '#ecfdf5';
 
     list.innerHTML = display.map(r => {
@@ -234,7 +234,7 @@ function renderRecords() {
                     <div class="w-1 flex-shrink-0 rounded-l-2xl" style="background:${accent}"></div>
                     <div class="flex-1 p-4 flex items-center justify-between">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0" style="background:${accentLight};color:${accent}">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs flex-shrink-0 bg-slate-100 text-slate-400">
                                 ${(r.user_display_name || '?')[0]}
                             </div>
                             <div class="min-w-0">
@@ -293,8 +293,10 @@ function renderStats() {
         return;
     }
 
-    const uColor = '#10b981';
+    const uColor = '#059669';
     const uColorLight = '#ecfdf5';
+    const avatarBg = 'bg-slate-100';
+    const avatarText = 'text-slate-400';
 
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
@@ -323,7 +325,7 @@ function renderStats() {
         return `
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-50 mb-3">
                 <div class="flex items-center gap-4 p-5 pb-3">
-                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0" style="background:${uColorLight};color:${uColor}">
+                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${avatarBg} ${avatarText}">
                         ${s.display_name[0]}
                     </div>
                     <div class="flex-1 min-w-0">

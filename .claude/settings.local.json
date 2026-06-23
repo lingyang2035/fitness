@@ -61,7 +61,8 @@
       "WebFetch(domain:visualtargets.com.au)",
       "WebFetch(domain:dribbble.com)",
       "Bash(git checkout *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "WebFetch(domain:colorhunt.co)"
     ]
   }
 }
