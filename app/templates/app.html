@@ -26,7 +26,7 @@
             <div class="flex items-center justify-between mb-4">
                 <span id="user-badge" class="text-sm font-bold text-slate-700"></span>
                 <button onclick="showInviteModal()" id="invite-btn"
-                        class="px-3 py-1.5 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold hover:bg-indigo-100 transition-colors">
+                        class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold hover:bg-emerald-100 transition-colors">
                     + 邀请家人
                 </button>
             </div>
@@ -49,7 +49,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-bold text-slate-700" id="week-display">本周</span>
                     <button onclick="goToCurrentWeek()" id="btn-current-week"
-                            class="hidden px-3 py-1 text-xs font-bold bg-indigo-50 text-indigo-600 rounded-full hover:bg-indigo-100 transition-all">
+                            class="hidden px-3 py-1 text-xs font-bold bg-emerald-50 text-emerald-600 rounded-full hover:bg-emerald-100 transition-all">
                         本周
                     </button>
                 </div>
@@ -60,18 +60,18 @@
         </div>
 
         <!-- Summary Cards -->
-        <div class="mx-5 mt-3 mb-0 p-3 bg-indigo-50/60 rounded-2xl flex-shrink-0" id="summary-cards">
+        <div class="mx-5 mt-3 mb-0 p-3 bg-emerald-50/60 rounded-2xl flex-shrink-0" id="summary-cards">
             <div class="grid grid-cols-2 gap-3">
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <div class="flex items-center gap-1.5 mb-1.5">
-                        <i data-lucide="clock" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
                         <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总时长</span>
                     </div>
                     <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-time">0<span class="text-sm font-medium text-slate-400 ml-0.5">min</span></div>
                 </div>
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <div class="flex items-center gap-1.5 mb-1.5">
-                        <i data-lucide="route" class="w-3.5 h-3.5 text-indigo-400"></i>
+                        <i data-lucide="route" class="w-3.5 h-3.5 text-emerald-400"></i>
                         <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总里程</span>
                     </div>
                     <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-dist">0<span class="text-sm font-medium text-slate-400 ml-0.5">km</span></div>
@@ -119,16 +119,16 @@
                         <div>
                             <label class="text-xs text-slate-400 font-semibold uppercase tracking-wide">时长 (min)</label>
                             <input type="number" id="input-dur" value="30" min="1" max="480"
-                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all">
+                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
                         </div>
                         <div>
                             <label id="dist-label" class="text-xs text-slate-400 font-semibold uppercase tracking-wide">距离 (km)</label>
                             <input type="number" id="input-dist" value="3.0" step="0.1" min="0"
-                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 transition-all">
+                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
                         </div>
                     </div>
                     <button onclick="saveRecord()"
-                            class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition-colors active:scale-[0.98] shadow-lg shadow-indigo-200">
+                            class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-colors active:scale-[0.98] shadow-lg shadow-emerald-200">
                         确认保存
                     </button>
                 </div>
@@ -150,12 +150,12 @@
                         <p class="text-xs text-slate-400 mb-1">邀请链接</p>
                         <p class="text-sm font-mono text-slate-700 break-all" id="invite-url-text"></p>
                         <button onclick="copyInviteUrl()"
-                                class="mt-3 w-full bg-indigo-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors">
+                                class="mt-3 w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors">
                             复制链接
                         </button>
                     </div>
                     <button onclick="generateInvite()" id="gen-invite-btn"
-                            class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-colors">
+                            class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors">
                         生成邀请链接
                     </button>
                     <div id="invite-list" class="space-y-2"></div>

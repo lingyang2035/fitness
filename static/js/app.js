@@ -84,7 +84,7 @@ function renderTypeSelector() {
     const container = document.getElementById('type-selector');
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
-                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
+                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-white text-emerald-600 shadow-sm ring-1 ring-emerald-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
             ${t.name}
         </button>
     `).join('');
@@ -93,11 +93,11 @@ function renderTypeSelector() {
 function selectType(type, btn) {
     state.selectedType = type;
     document.querySelectorAll('.type-btn').forEach(b => {
-        b.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'ring-1', 'ring-indigo-200');
+        b.classList.remove('bg-white', 'text-emerald-600', 'shadow-sm', 'ring-1', 'ring-emerald-200');
         b.classList.add('bg-slate-50', 'text-slate-400');
     });
     btn.classList.remove('bg-slate-50', 'text-slate-400');
-    btn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'ring-1', 'ring-indigo-200');
+    btn.classList.add('bg-white', 'text-emerald-600', 'shadow-sm', 'ring-1', 'ring-emerald-200');
 
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
@@ -222,8 +222,8 @@ function renderRecords() {
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
     // Single subtle accent — no per-type rainbow
-    const accent = '#6366f1';
-    const accentLight = '#eef2ff';
+    const accent = '#10b981';
+    const accentLight = '#ecfdf5';
 
     list.innerHTML = display.map(r => {
         const unit = unitMap[r.exercise_type] === 'count' ? '个' : 'km';
@@ -293,8 +293,8 @@ function renderStats() {
         return;
     }
 
-    const uColor = '#6366f1';
-    const uColorLight = '#eef2ff';
+    const uColor = '#10b981';
+    const uColorLight = '#ecfdf5';
 
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
