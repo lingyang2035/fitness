@@ -56,7 +56,9 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git tag *)",
-      "Bash(python3 *)"
+      "Bash(python3 *)",
+      "WebFetch(domain:danchi-studio.com)",
+      "WebFetch(domain:visualtargets.com.au)"
     ]
   }
 }

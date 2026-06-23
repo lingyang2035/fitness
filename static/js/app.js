@@ -84,7 +84,7 @@ function renderTypeSelector() {
     const container = document.getElementById('type-selector');
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
-                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-indigo-200' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
             ${t.name}
         </button>
     `).join('');
@@ -93,11 +93,11 @@ function renderTypeSelector() {
 function selectType(type, btn) {
     state.selectedType = type;
     document.querySelectorAll('.type-btn').forEach(b => {
-        b.classList.remove('bg-teal-500', 'text-white', 'shadow-sm');
-        b.classList.add('bg-slate-100', 'text-slate-500');
+        b.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm', 'ring-1', 'ring-indigo-200');
+        b.classList.add('bg-slate-50', 'text-slate-400');
     });
-    btn.classList.remove('bg-slate-100', 'text-slate-500');
-    btn.classList.add('bg-teal-500', 'text-white', 'shadow-sm');
+    btn.classList.remove('bg-slate-50', 'text-slate-400');
+    btn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm', 'ring-1', 'ring-indigo-200');
 
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
@@ -202,8 +202,8 @@ function renderRecords() {
         .filter(r => !COUNT_BASED.has(r.exercise_type))
         .reduce((s, r) => s + r.quantity, 0);
 
-    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-medium opacity-70 ml-0.5">min</span>';
-    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-medium opacity-70 ml-0.5">km</span>';
+    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-medium text-slate-400 ml-0.5">min</span>';
+    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-medium text-slate-400 ml-0.5">km</span>';
 
     const list = document.getElementById('record-list');
     if (display.length === 0) {
@@ -221,8 +221,9 @@ function renderRecords() {
     const unitMap = {};
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
-    // Unified accent color — single teal tone for all exercise types
-    const accent = '#0d9488';
+    // Single subtle accent — no per-type rainbow
+    const accent = '#6366f1';
+    const accentLight = '#eef2ff';
 
     list.innerHTML = display.map(r => {
         const unit = unitMap[r.exercise_type] === 'count' ? '个' : 'km';
@@ -233,7 +234,7 @@ function renderRecords() {
                     <div class="w-1 flex-shrink-0 rounded-l-2xl" style="background:${accent}"></div>
                     <div class="flex-1 p-4 flex items-center justify-between">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm text-white shadow-sm flex-shrink-0" style="background:${accent}">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0" style="background:${accentLight};color:${accent}">
                                 ${(r.user_display_name || '?')[0]}
                             </div>
                             <div class="min-w-0">
@@ -292,7 +293,8 @@ function renderStats() {
         return;
     }
 
-    const uColor = '#0d9488';
+    const uColor = '#6366f1';
+    const uColorLight = '#eef2ff';
 
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
@@ -321,7 +323,7 @@ function renderStats() {
         return `
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-50 mb-3">
                 <div class="flex items-center gap-4 p-5 pb-3">
-                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold text-white shadow-sm flex-shrink-0" style="background:${uColor}">
+                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0" style="background:${uColorLight};color:${uColor}">
                         ${s.display_name[0]}
                     </div>
                     <div class="flex-1 min-w-0">
