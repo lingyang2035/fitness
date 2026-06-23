@@ -221,9 +221,9 @@ function renderRecords() {
     const unitMap = {};
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
-    // Single subtle accent — no per-type rainbow
-    const accent = '#059669';
-    const accentLight = '#ecfdf5';
+    // Sports mint green — used sparingly per design research (~2% surface area)
+    const accent = '#00c080';
+    const accentLight = '#e6faf2';
 
     list.innerHTML = display.map(r => {
         const unit = unitMap[r.exercise_type] === 'count' ? '个' : 'km';
@@ -293,8 +293,8 @@ function renderStats() {
         return;
     }
 
-    const uColor = '#059669';
-    const uColorLight = '#ecfdf5';
+    const uColor = '#00c080';
+    const uColorLight = '#e6faf2';
     const avatarBg = 'bg-slate-100';
     const avatarText = 'text-slate-400';
 
