@@ -84,7 +84,7 @@ function renderTypeSelector() {
     const container = document.getElementById('type-selector');
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
-                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-orange-500 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-teal-500 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
             ${t.name}
         </button>
     `).join('');
@@ -93,11 +93,11 @@ function renderTypeSelector() {
 function selectType(type, btn) {
     state.selectedType = type;
     document.querySelectorAll('.type-btn').forEach(b => {
-        b.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
+        b.classList.remove('bg-teal-500', 'text-white', 'shadow-sm');
         b.classList.add('bg-slate-100', 'text-slate-500');
     });
     btn.classList.remove('bg-slate-100', 'text-slate-500');
-    btn.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
+    btn.classList.add('bg-teal-500', 'text-white', 'shadow-sm');
 
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
@@ -221,8 +221,8 @@ function renderRecords() {
     const unitMap = {};
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
-    // Unified accent color — single orange tone for all exercise types
-    const accent = '#f97316';
+    // Unified accent color — single teal tone for all exercise types
+    const accent = '#0d9488';
 
     list.innerHTML = display.map(r => {
         const unit = unitMap[r.exercise_type] === 'count' ? '个' : 'km';
@@ -292,7 +292,7 @@ function renderStats() {
         return;
     }
 
-    const uColor = '#f97316';
+    const uColor = '#0d9488';
 
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
