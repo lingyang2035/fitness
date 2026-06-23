@@ -6,14 +6,14 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#4f46e5">
-    <meta property="og:title" content="家庭健身">
-    <meta property="og:description" content="和家人一起记录运动，健康生活">
+    <meta property="og:title" content="{{ app_name }}">
+    <meta property="og:description" content="{{ app_tagline }}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.url }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="manifest" href="{{ app_prefix }}/manifest.json">
-    <title>{% block title %}家庭健身{% endblock %}</title>
+    <title>{% block title %}{{ app_name }}{% endblock %}</title>
     <style>
         * { -webkit-tap-highlight-color: transparent; }
         input:focus { outline: none; }
@@ -43,6 +43,9 @@
 
     <script>
     window.APP_PREFIX = '{{ app_prefix }}';
+    window.APP_NAME = '{{ app_name }}';
+    window.APP_EMOJI = '{{ app_emoji }}';
+    window.APP_TITLE = '{{ app_title }}';
     function showToast(msg, type = 'error') {
         const container = document.getElementById('toast-container');
         const el = document.createElement('div');

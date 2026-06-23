@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}家庭健身{% endblock %}
+{% block title %}{{ app_name }}{% endblock %}
 {% block body %}
 <div class="min-h-screen flex items-center justify-center p-0 sm:p-4">
     <div class="w-full sm:max-w-[400px] h-screen sm:h-[780px] bg-slate-50 sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col sm:border-[8px] sm:border-white sm:ring-1 sm:ring-slate-200 relative">
@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="px-5 pt-5 pb-2 flex-shrink-0">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-black text-slate-800 tracking-tight">🏋️ 家庭健身</h1>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">{{ app_title }}</h1>
                 <div class="flex items-center gap-1">
                     <button onclick="shareApp()" class="p-2 hover:bg-white rounded-xl text-slate-400 transition-colors" title="分享">
                         <i data-lucide="share-2" class="w-4 h-4"></i>

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% block title %}初始化 - 家庭健身{% endblock %}
+{% block title %}初始化 - {{ app_name }}{% endblock %}
 {% block body %}
 <div class="flex items-center justify-center min-h-screen p-6">
     <div class="w-full max-w-sm">
         <div class="text-center mb-8">
-            <div class="text-5xl mb-4">🏋️</div>
-            <h1 class="text-2xl font-black text-slate-800 mb-2">欢迎加入家庭健身</h1>
+            <div class="text-5xl mb-4">{{ app_emoji }}</div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">欢迎加入{{ app_name }}</h1>
             <p class="text-slate-400 text-sm">首次使用，请创建管理员账号</p>
         </div>
 

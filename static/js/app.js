@@ -496,7 +496,7 @@ function shareApp() {
     const url = window.location.origin + window.APP_PREFIX + '/login';
     if (navigator.share) {
         navigator.share({
-            title: '家庭健身',
+            title: window.APP_NAME,
             text: '来和我们一起记录运动吧！',
             url: url
         }).catch(() => {});

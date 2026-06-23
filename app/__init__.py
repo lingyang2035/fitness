@@ -3,6 +3,14 @@ from app.config import Config
 from app.db import init_db, close_db
 from werkzeug.middleware.proxy_fix import ProxyFix
 
+# ── 应用元数据：改这里全局生效 ──
+APP_NAME = "锻炼日记"
+APP_EMOJI = "🏅"
+APP_TITLE = f"{APP_EMOJI} {APP_NAME}"
+APP_SHORT = "日记"
+APP_DESC = "锻炼日记 - 记录与统计"
+APP_TAGLINE = "和家人一起记录运动，健康生活"
+
 
 def create_app(config_class=Config):
     app = Flask(__name__, static_folder='../static', static_url_path='/static')
@@ -28,9 +36,15 @@ def create_app(config_class=Config):
 
     # --- Dynamic app_prefix for templates (empty for direct, /fitness via nginx) ---
     @app.context_processor
-    def inject_prefix():
+    def inject_globals():
         prefix = request.headers.get('X-Forwarded-Prefix', '')
-        return {'app_prefix': prefix}
+        return {
+            'app_prefix': prefix,
+            'app_name': APP_NAME,
+            'app_emoji': APP_EMOJI,
+            'app_title': APP_TITLE,
+            'app_tagline': APP_TAGLINE,
+        }
 
     # ---- PWA dynamic routes ----
 
@@ -38,9 +52,9 @@ def create_app(config_class=Config):
     def serve_manifest():
         prefix = request.headers.get('X-Forwarded-Prefix', '')
         return jsonify({
-            "name": "家庭健身",
-            "short_name": "健身",
-            "description": "家庭健身记录与统计",
+            "name": APP_NAME,
+            "short_name": APP_SHORT,
+            "description": APP_DESC,
             "start_url": prefix + "/app",
             "display": "standalone",
             "background_color": "#ffffff",
