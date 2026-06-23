@@ -84,7 +84,7 @@ function renderTypeSelector() {
     const container = document.getElementById('type-selector');
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
-                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-indigo-600 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
+                class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-orange-500 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}">
             ${t.name}
         </button>
     `).join('');
@@ -93,11 +93,11 @@ function renderTypeSelector() {
 function selectType(type, btn) {
     state.selectedType = type;
     document.querySelectorAll('.type-btn').forEach(b => {
-        b.classList.remove('bg-indigo-600', 'text-white', 'shadow-sm');
+        b.classList.remove('bg-orange-500', 'text-white', 'shadow-sm');
         b.classList.add('bg-slate-100', 'text-slate-500');
     });
     btn.classList.remove('bg-slate-100', 'text-slate-500');
-    btn.classList.add('bg-indigo-600', 'text-white', 'shadow-sm');
+    btn.classList.add('bg-orange-500', 'text-white', 'shadow-sm');
 
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
@@ -221,21 +221,12 @@ function renderRecords() {
     const unitMap = {};
     state.types.forEach(t => { unitMap[t.name] = t.unit; });
 
-    // Each exercise type has a distinct color for quick visual scanning (like Strava)
-    const typeColors = {
-        '跑步': '#6366f1',     // indigo
-        '游泳': '#3b82f6',     // blue
-        '壶铃': '#f59e0b',     // amber
-        '拉伸': '#10b981',     // emerald
-        '跳绳': '#ec4899',     // rose
-        '引体向上': '#8b5cf6', // violet
-    };
-    const fallback = '#6366f1';
+    // Unified accent color — single orange tone for all exercise types
+    const accent = '#f97316';
 
     list.innerHTML = display.map(r => {
         const unit = unitMap[r.exercise_type] === 'count' ? '个' : 'km';
         const isOwn = r.user_id === state.currentUser?.id;
-        const accent = typeColors[r.exercise_type] || fallback;
         return `
             <div class="mb-3 bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-50 hover:shadow-md transition-shadow">
                 <div class="flex">
@@ -301,12 +292,11 @@ function renderStats() {
         return;
     }
 
-    const userColors = ['#6366f1', '#f59e0b', '#10b981', '#ec4899'];
+    const uColor = '#f97316';
 
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
     ` + sorted.map((s, idx) => {
-        const uColor = userColors[idx % userColors.length];
         const unitMap = {};
         state.types.forEach(t => { unitMap[t.name] = t.unit; });
 

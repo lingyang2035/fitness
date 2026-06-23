@@ -9,13 +9,13 @@
                 <h1 class="text-xl font-black text-slate-800">⚙️ 管理后台</h1>
                 <p class="text-xs text-slate-400" id="user-info"></p>
             </div>
-            <a href="{{ app_prefix }}/app" class="text-sm text-indigo-600 font-semibold hover:underline">← 返回应用</a>
+            <a href="{{ app_prefix }}/app" class="text-sm text-orange-600 font-semibold hover:underline">← 返回应用</a>
         </div>
 
         <!-- Tabs -->
         <div class="bg-white p-1 rounded-2xl flex mb-4 shadow-sm">
             <button onclick="switchTab('dashboard')" id="tab-dashboard"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition-all">概览</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold bg-orange-600 text-white transition-all">概览</button>
             <button onclick="switchTab('users')" id="tab-users"
                     class="flex-1 py-2 rounded-xl text-xs font-semibold text-slate-500 transition-all">用户</button>
             <button onclick="switchTab('records')" id="tab-records"
@@ -68,7 +68,7 @@
                 <input type="checkbox" id="edit-active" checked class="w-4 h-4">
                 <label for="edit-active" class="text-sm text-slate-600">账号激活</label>
             </div>
-            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors">
+            <button type="submit" class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold hover:bg-orange-700 transition-colors">
                 保存
             </button>
         </form>

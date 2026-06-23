@@ -55,7 +55,8 @@
       "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
       "Bash(git add *)",
       "Bash(git commit *)",
-      "Bash(git tag *)"
+      "Bash(git tag *)",
+      "Bash(python3 *)"
     ]
   }
 }
