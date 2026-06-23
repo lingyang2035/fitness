@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}登录 - 家庭健身{% endblock %}
+{% block body %}
+<div class="flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+            <div class="text-5xl mb-4">🏋️</div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">家庭健身</h1>
+            <p class="text-slate-400 text-sm">登录以继续记录运动</p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+            <form id="login-form" onsubmit="handleLogin(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">用户名</label>
+                        <input type="text" id="username" required placeholder="输入用户名"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">密码</label>
+                        <input type="password" id="password" required placeholder="输入密码"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn"
+                        class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-indigo-700 transition-colors">
+                    登录
+                </button>
+            </form>
+
+            <p class="text-center text-xs text-slate-400 mt-4">
+                还没有账号？<a href="{{ app_prefix }}/join" class="text-indigo-600 font-semibold">使用邀请码注册</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ app_prefix }}/static/js/api.js"></script>
+<script>
+async function handleLogin(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '登录中...';
+    try {
+        await API.login({
+            username: document.getElementById('username').value.trim(),
+            password: document.getElementById('password').value
+        });
+        window.location.href = '{{ app_prefix }}/app';
+    } catch (err) {
+        showToast(err.message);
+        btn.disabled = false;
+        btn.textContent = '登录';
+    }
+}
+</script>
+{% endblock %}

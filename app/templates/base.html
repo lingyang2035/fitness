@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#4f46e5">
+    <meta property="og:title" content="家庭健身">
+    <meta property="og:description" content="和家人一起记录运动，健康生活">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.url }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="manifest" href="{{ app_prefix }}/manifest.json">
+    <title>{% block title %}家庭健身{% endblock %}</title>
+    <style>
+        * { -webkit-tap-highlight-color: transparent; }
+        input:focus { outline: none; }
+        .skeleton { animation: pulse 1.5s ease-in-out infinite; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .toast {
+            position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
+            z-index: 9999; padding: 0.75rem 1.5rem; border-radius: 1rem;
+            font-size: 0.875rem; font-weight: 600;
+            animation: slideDown 0.3s ease;
+        }
+        .toast-error { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .toast-success { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-1rem); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen font-sans antialiased">
+    {% block body %}{% endblock %}
+
+    <div id="toast-container"></div>
+
+    <script>
+    window.APP_PREFIX = '{{ app_prefix }}';
+    function showToast(msg, type = 'error') {
+        const container = document.getElementById('toast-container');
+        const el = document.createElement('div');
+        el.className = `toast toast-${type}`;
+        el.textContent = msg;
+        container.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; }, 2500);
+        setTimeout(() => el.remove(), 2800);
+    }
+    </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('{{ app_prefix }}/sw.js', { scope: '{{ app_prefix }}/' }).catch(() => {});
+    }
+    </script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

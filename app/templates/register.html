@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}注册 - 家庭健身{% endblock %}
+{% block body %}
+<div class="flex items-center justify-center min-h-screen p-6">
+    <div class="w-full max-w-sm">
+        <div class="text-center mb-8">
+            <div class="text-5xl mb-4">👋</div>
+            <h1 class="text-2xl font-black text-slate-800 mb-2">加入家庭健身</h1>
+            <p class="text-slate-400 text-sm" id="token-status">
+                {% if token %}
+                正在验证邀请链接...
+                {% else %}
+                请获取邀请链接后注册
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+            {% if not token %}
+            <div class="text-center py-4">
+                <p class="text-slate-500 text-sm mb-4">请让家人通过应用内的「邀请成员」功能发送邀请链接给你</p>
+                <a href="{{ app_prefix }}/login" class="text-indigo-600 font-semibold text-sm">返回登录</a>
+            </div>
+            {% else %}
+            <form id="register-form" onsubmit="handleRegister(event)">
+                <input type="hidden" id="token" value="{{ token }}">
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">用户名</label>
+                        <input type="text" id="username" required minlength="2" placeholder="登录用"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">显示名称</label>
+                        <input type="text" id="display_name" required placeholder="如：爸爸、妈妈、儿子"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">密码</label>
+                        <input type="password" id="password" required minlength="4" placeholder="至少4位"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">确认密码</label>
+                        <input type="password" id="password_confirm" required minlength="4" placeholder="再次输入密码"
+                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn"
+                        class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-indigo-700 transition-colors">
+                    注册并加入
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ app_prefix }}/static/js/api.js"></script>
+{% if token %}
+<script>
+(async function() {
+    try {
+        const res = await API.request('GET', '/api/invite/verify?token={{ token }}');
+        if (res.valid) {
+            document.getElementById('token-status').innerHTML = '✅ 邀请链接有效，请填写信息';
+        } else {
+            document.getElementById('token-status').innerHTML = '❌ ' + res.message;
+            document.getElementById('register-form').style.display = 'none';
+        }
+    } catch (err) {
+        document.getElementById('token-status').innerHTML = '❌ 验证失败';
+    }
+})();
+
+async function handleRegister(e) {
+    e.preventDefault();
+    const pwd = document.getElementById('password').value;
+    const pwd2 = document.getElementById('password_confirm').value;
+    if (pwd !== pwd2) {
+        showToast('两次密码输入不一致');
+        return;
+    }
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = '注册中...';
+    try {
+        await API.register({
+            username: document.getElementById('username').value.trim(),
+            display_name: document.getElementById('display_name').value.trim(),
+            password: pwd,
+            token: document.getElementById('token').value
+        });
+        showToast('注册成功！', 'success');
+        setTimeout(() => { window.location.href = '{{ app_prefix }}/app'; }, 500);
+    } catch (err) {
+        showToast(err.message);
+        btn.disabled = false;
+        btn.textContent = '注册并加入';
+    }
+}
+</script>
+{% endif %}
+{% endblock %}
