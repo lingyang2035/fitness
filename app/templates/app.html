@@ -26,7 +26,7 @@
             <div class="flex items-center justify-between mb-4">
                 <span id="user-badge" class="text-sm font-bold text-slate-700"></span>
                 <button onclick="showInviteModal()" id="invite-btn"
-                        class="px-3 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-xs font-bold hover:bg-emerald-100 transition-colors">
+                        class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-200 transition-colors">
                     + 邀请家人
                 </button>
             </div>
@@ -49,7 +49,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-sm font-bold text-slate-700" id="week-display">本周</span>
                     <button onclick="goToCurrentWeek()" id="btn-current-week"
-                            class="hidden px-3 py-1 text-xs font-bold bg-emerald-50 text-emerald-600 rounded-full hover:bg-emerald-100 transition-all">
+                            class="hidden px-3 py-1 text-xs font-bold bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-all">
                         本周
                     </button>
                 </div>
@@ -61,16 +61,16 @@
 
         <!-- Summary Cards -->
         <div class="px-5 py-3 grid grid-cols-2 gap-3 flex-shrink-0" id="summary-cards">
-            <div class="bg-white p-4 rounded-2xl border-l-[3px] border-emerald-500 shadow-sm">
+            <div class="bg-white p-4 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-300"></i>
                     <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总时长</span>
                 </div>
                 <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-time">0<span class="text-sm font-medium text-slate-400 ml-0.5">min</span></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl border-l-[3px] border-emerald-500 shadow-sm">
+            <div class="bg-white p-4 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="route" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <i data-lucide="route" class="w-3.5 h-3.5 text-slate-300"></i>
                     <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总里程</span>
                 </div>
                 <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-dist">0<span class="text-sm font-medium text-slate-400 ml-0.5">km</span></div>

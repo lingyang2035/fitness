@@ -59,9 +59,10 @@
       "Bash(python3 *)",
       "WebFetch(domain:danchi-studio.com)",
       "WebFetch(domain:visualtargets.com.au)",
-      "WebFetch(domain:uimodule.com)",
-      "WebFetch(domain:brandfetch.com)",
-      "WebFetch(domain:www.gotokeep.com)"
+      "WebFetch(domain:dribbble.com)",
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "WebFetch(domain:colorhunt.co)"
     ]
   }
 }
