@@ -1,43 +1,50 @@
 #!/bin/bash
-# ==============================================
-# 家庭健身 App — 容器部署脚本
-# 在远程服务器上执行
-# ==============================================
+# =============================================
+# 锻炼日记 — 一键发版脚本
+# 用法: bash deploy.sh
+# =============================================
 set -e
 
-# ====== 配置区（按你的实际情况修改）======
-CONTAINER_NAME="替换为你的容器名"      # docker ps 查看
-APP_DIR="/opt/fitness"                  # 容器内存放项目的路径
-APP_PORT=9101                           # 应用端口
-# ==============================================
+CONTAINER="578b9aba60e6"
+APP_DIR="/opt/fitness"
+PORT="9101"
+BUNDLE="/tmp/fitness-deploy.tar.gz"
+LOCAL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-echo "📦 步骤 1/4: 将项目文件复制到容器中..."
-docker cp /tmp/fitness/ "${CONTAINER_NAME}:${APP_DIR}"
+echo "📦 打包代码 (排除 .git .claude data __pycache__)..."
+tar -czf "$BUNDLE" -C "$LOCAL_DIR" \
+  --exclude='.git' \
+  --exclude='.claude' \
+  --exclude='data' \
+  --exclude='__pycache__' \
+  --exclude='*.pyc' \
+  --exclude='*.db' \
+  --exclude='.gitignore' \
+  --exclude='deploy.sh' \
+  .
 
-echo ""
-echo "📥 步骤 2/4: 安装 Python 依赖..."
-docker exec "${CONTAINER_NAME}" pip install flask waitress --break-system-packages
+echo "🚀 上传到容器 $CONTAINER..."
+docker cp "$BUNDLE" "$CONTAINER:/tmp/"
 
-echo ""
-echo "🔑 步骤 3/4: 生成固定密钥..."
-SECRET_KEY=$(docker exec "${CONTAINER_NAME}" python3 -c "import secrets; print(secrets.token_hex(32))")
-echo "SECRET_KEY=${SECRET_KEY}"
+echo "🔄 解压并重启服务..."
+docker exec "$CONTAINER" bash -c "
+  pkill -f waitress 2>/dev/null || true
+  sleep 0.5
+  cd $APP_DIR
+  tar -xzf /tmp/fitness-deploy.tar.gz
+  nohup python3 -c \"
+from waitress import serve
+from app import create_app
+serve(create_app(), host='0.0.0.0', port=$PORT)
+\" > /var/log/fitness.log 2>&1 &
+  sleep 1
+  if pgrep -f waitress > /dev/null; then
+    echo '✅ 发版成功 — waitress 已启动'
+  else
+    echo '❌ 发版失败 — 检查 /var/log/fitness.log'
+    exit 1
+  fi
+"
 
-echo ""
-echo "🚀 步骤 4/4: 启动应用 (Waitress 生产模式, 端口 ${APP_PORT})..."
-echo "容器内按 Ctrl+C 停止，或者用 docker exec 启动后台进程"
-echo ""
-echo "============================================="
-echo "  启动命令（在容器内执行）："
-echo "============================================="
-echo ""
-echo "  cd ${APP_DIR}"
-echo "  SECRET_KEY=${SECRET_KEY} python3 -c \""
-echo "from waitress import serve"
-echo "from app import create_app"
-echo "serve(create_app(), host='0.0.0.0', port=${APP_PORT})"
-echo "\""
-echo ""
-echo "============================================="
-echo "  然后访问: http://你的服务器IP:9101"
-echo "============================================="
+rm -f "$BUNDLE"
+echo "✨ 完成"

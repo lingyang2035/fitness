@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify, session, current_app
 from app.models.users import (
     get_user_by_username, create_user, authenticate, user_count,
     get_user_by_id, update_user, reset_user_password
@@ -6,8 +6,29 @@ from app.models.users import (
 from app.models.invites import verify_token, mark_token_used
 from app.auth import login_required
 from app.utils import log_action
+import time
 
 auth_bp = Blueprint('auth', __name__)
+
+# In-memory rate limiter for login (resets on restart)
+_login_attempts = {}  # {ip_or_username: [(timestamp, ...)]}
+
+
+def _check_rate_limit(key):
+    """Return True if rate limit exceeded."""
+    now = time.time()
+    window = current_app.config.get('LOGIN_WINDOW_SECONDS', 60)
+    max_attempts = current_app.config.get('MAX_LOGIN_ATTEMPTS', 5)
+    attempts = _login_attempts.get(key, [])
+    # Prune old entries
+    attempts = [t for t in attempts if now - t < window]
+    _login_attempts[key] = attempts
+    return len(attempts) >= max_attempts
+
+
+def _record_attempt(key):
+    """Record a failed login attempt."""
+    _login_attempts.setdefault(key, []).append(time.time())
 
 @auth_bp.route('/api/auth/setup', methods=['POST'])
 def setup():
@@ -48,8 +69,14 @@ def login():
     if not username or not password:
         return jsonify({'error': '请输入用户名和密码'}), 400
 
+    # Rate limit by IP + username
+    rate_key = f"{request.remote_addr}:{username}"
+    if _check_rate_limit(rate_key):
+        return jsonify({'error': '登录尝试过于频繁，请稍后再试'}), 429
+
     user = authenticate(username, password)
     if not user:
+        _record_attempt(rate_key)
         log_action('login_failed', details={'username': username})
         return jsonify({'error': '用户名或密码错误'}), 401
 

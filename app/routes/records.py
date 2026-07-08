@@ -10,8 +10,6 @@ from app.utils import log_action, get_week_start
 
 records_bp = Blueprint('records', __name__)
 
-COUNT_BASED_TYPES = {'壶铃', '拉伸', '跳绳', '引体向上'}
-
 @records_bp.route('/api/records', methods=['GET'])
 @login_required
 def list_records():

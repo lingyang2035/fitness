@@ -9,7 +9,15 @@ const state = {
     invites: []
 };
 
-const COUNT_BASED = new Set(['壶铃', '拉伸', '跳绳', '引体向上']);
+function getUnitMap() {
+    const map = {};
+    state.types.forEach(t => { map[t.name] = t.unit; });
+    return map;
+}
+function isCountType(typeName) {
+    const m = getUnitMap();
+    return m[typeName] === 'count';
+}
 
 function getMonday(d) {
     const date = new Date(d);
@@ -85,7 +93,7 @@ function renderTypeSelector() {
     container.innerHTML = state.types.map(t => `
         <button onclick="selectType('${t.name}', this)"
                 class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all ${t.name === state.selectedType ? 'bg-emerald-50 text-emerald-700 shadow-sm ring-2 ring-emerald-400' : 'bg-slate-50 text-slate-400 hover:bg-slate-100'}">
-            ${t.name}
+            ${escapeHtml(t.name)}
         </button>
     `).join('');
 }
@@ -100,7 +108,7 @@ function selectType(type, btn) {
     btn.classList.add('bg-emerald-50', 'text-emerald-700', 'shadow-sm', 'ring-2', 'ring-emerald-400');
 
     const typeObj = state.types.find(t => t.name === type);
-    const isCount = typeObj ? typeObj.unit === 'count' : COUNT_BASED.has(type);
+    const isCount = typeObj ? typeObj.unit === 'count' : isCountType(type);
     document.getElementById('dist-label').innerText = isCount ? '数量 (个)' : '距离 (km)';
     const distInput = document.getElementById('input-dist');
     distInput.value = '0';
@@ -207,7 +215,7 @@ function renderRecords() {
 
     const totalDuration = display.reduce((s, r) => s + r.duration_minutes, 0);
     const totalDist = display
-        .filter(r => !COUNT_BASED.has(r.exercise_type))
+        .filter(r => !isCountType(r.exercise_type))
         .reduce((s, r) => s + r.quantity, 0);
 
     document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-medium text-slate-400 ml-0.5">min</span>';
@@ -226,8 +234,7 @@ function renderRecords() {
         return;
     }
 
-    const unitMap = {};
-    state.types.forEach(t => { unitMap[t.name] = t.unit; });
+    const unitMap = getUnitMap();
 
     // Sports mint green — used sparingly per design research (~2% surface area)
     const accent = '#00c080';
@@ -243,12 +250,12 @@ function renderRecords() {
                     <div class="flex-1 p-4 flex items-center justify-between">
                         <div class="flex items-center gap-3 min-w-0">
                             <div class="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs flex-shrink-0 bg-slate-100 text-slate-400">
-                                ${(r.user_display_name || '?')[0]}
+                                ${escapeHtml((r.user_display_name || '?')[0])}
                             </div>
                             <div class="min-w-0">
-                                <div class="text-sm font-bold text-slate-800 truncate">${r.exercise_type}</div>
+                                <div class="text-sm font-bold text-slate-800 truncate">${escapeHtml(r.exercise_type)}</div>
                                 <div class="text-xs text-slate-400 truncate">
-                                    ${r.user_display_name} · ${r.recorded_at ? r.recorded_at.slice(11, 16) : ''}
+                                    ${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(11, 16) : ''}
                                 </div>
                             </div>
                         </div>
@@ -309,8 +316,7 @@ function renderStats() {
     list.innerHTML = `
         <h3 class="text-sm font-bold text-slate-400 mb-3 px-1">📊 成员运动统计</h3>
     ` + sorted.map((s, idx) => {
-        const unitMap = {};
-        state.types.forEach(t => { unitMap[t.name] = t.unit; });
+        const unitMap = getUnitMap();
 
         const typeBreakdown = {};
         s.records.forEach(r => {
@@ -324,7 +330,7 @@ function renderStats() {
             const unit = unitMap[type] === 'count' ? '个' : 'km';
             return `
                 <div class="flex justify-between items-center text-xs py-1.5 px-3 -mx-3 rounded-lg hover:bg-slate-50">
-                    <span class="text-slate-600 font-medium">${type}</span>
+                    <span class="text-slate-600 font-medium">${escapeHtml(type)}</span>
                     <span class="text-slate-500">${data.duration}min · ${data.quantity}${unit} · ${data.count}次</span>
                 </div>
             `;
@@ -334,10 +340,10 @@ function renderStats() {
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-slate-50 mb-3">
                 <div class="flex items-center gap-4 p-5 pb-3">
                     <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${avatarBg} ${avatarText}">
-                        ${s.display_name[0]}
+                        ${escapeHtml(s.display_name[0])}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <div class="font-bold text-slate-800 text-sm">${s.display_name}</div>
+                        <div class="font-bold text-slate-800 text-sm">${escapeHtml(s.display_name)}</div>
                         <div class="text-xs text-slate-400">${s.records.length} 次记录</div>
                     </div>
                     <div class="text-right flex-shrink-0">

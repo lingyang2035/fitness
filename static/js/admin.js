@@ -92,15 +92,15 @@ async function renderUsers(area) {
                 <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${u.role === 'admin' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
-                            ${u.display_name[0]}
+                            ${escapeHtml(u.display_name[0])}
                         </div>
                         <div>
                             <div class="text-sm font-bold text-slate-800">
-                                ${u.display_name}
+                                ${escapeHtml(u.display_name)}
                                 ${u.role === 'admin' ? '<span class="text-[10px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full ml-1">管理</span>' : ''}
                                 ${!u.is_active ? '<span class="text-[10px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full ml-1">已停用</span>' : ''}
                             </div>
-                            <div class="text-xs text-slate-400">@${u.username} · ${u.last_login ? '最近登录: ' + u.last_login.slice(0, 10) : '从未登录'}</div>
+                            <div class="text-xs text-slate-400">@${escapeHtml(u.username)} · ${u.last_login ? '最近登录: ' + u.last_login.slice(0, 10) : '从未登录'}</div>
                         </div>
                     </div>
                     <div class="flex gap-1">
@@ -212,8 +212,8 @@ async function renderRecords(area) {
                             ${(r.user_display_name || '?')[0]}
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-slate-800">${r.exercise_type} · ${r.duration_minutes}min</div>
-                            <div class="text-xs text-slate-400">${r.user_display_name} · ${r.recorded_at ? r.recorded_at.slice(0, 16) : ''}</div>
+                            <div class="text-sm font-bold text-slate-800">${escapeHtml(r.exercise_type)} · ${r.duration_minutes}min</div>
+                            <div class="text-xs text-slate-400">${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(0, 16) : ''}</div>
                         </div>
                     </div>
                     <button onclick="deleteAdminRecord(${r.id})" class="p-2 text-slate-300 hover:text-red-400">

@@ -1,8 +1,27 @@
 import os
 import secrets
 
+def _load_or_create_secret_key():
+    """Load SECRET_KEY from env or file; persist if generated."""
+    key = os.environ.get('SECRET_KEY')
+    if key:
+        return key
+    key_path = os.environ.get(
+        'SECRET_KEY_FILE',
+        os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'secret_key')
+    )
+    try:
+        with open(key_path) as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        key = secrets.token_hex(32)
+        os.makedirs(os.path.dirname(key_path), exist_ok=True)
+        with open(key_path, 'w') as f:
+            f.write(key)
+        return key
+
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+    SECRET_KEY = _load_or_create_secret_key()
     DATABASE = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'fitness.db'))
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'

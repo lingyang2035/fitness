@@ -1,19 +1,27 @@
 import hashlib
+import hmac
 import secrets
 from functools import wraps
 from flask import session, jsonify
 
 def hash_password(password):
-    """Hash a password using SHA-256 with a random salt."""
+    """Hash password with PBKDF2-SHA256 (OWASP 2023: 600k iterations)."""
     salt = secrets.token_hex(16)
-    h = hashlib.sha256((password + salt).encode()).hexdigest()
-    return f"{salt}${h}"
+    h = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 600000)
+    return f"pbkdf2${salt}${h.hex()}"
 
 def check_password(password, password_hash):
-    """Verify a password against its hash."""
+    """Verify password. Supports legacy SHA-256 and current PBKDF2."""
     try:
-        salt, h = password_hash.split('$', 1)
-        return h == hashlib.sha256((password + salt).encode()).hexdigest()
+        if password_hash.startswith('pbkdf2$'):
+            _, salt, h = password_hash.split('$', 2)
+            expected = hashlib.pbkdf2_hmac('sha256', password.encode(), salt.encode(), 600000)
+            return hmac.compare_digest(expected.hex(), h)
+        else:
+            # Legacy SHA-256 with salt (backward compatible)
+            salt, h = password_hash.split('$', 1)
+            expected = hashlib.sha256((password + salt).encode()).hexdigest()
+            return hmac.compare_digest(expected, h)
     except (ValueError, AttributeError):
         return False
 
