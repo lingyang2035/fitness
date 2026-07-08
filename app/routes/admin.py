@@ -11,7 +11,7 @@ from app.models.records import (
 from app.models.invites import get_invite_tokens, invites_count
 from app.models.logs import get_logs, get_log_actions
 from app.auth import admin_required
-from app.utils import log_action, get_week_start
+from app.utils import log_action, get_week_start, safe_user_dict
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -29,7 +29,7 @@ def dashboard():
 @admin_required
 def list_users():
     users = get_all_users_including_inactive()
-    return jsonify({'users': [dict(u) for u in users]})
+    return jsonify({'users': [safe_user_dict(u) for u in users]})
 
 @admin_bp.route('/api/admin/users', methods=['POST'])
 @admin_required
@@ -43,8 +43,8 @@ def add_user():
 
     if not username or len(username) < 2:
         return jsonify({'error': '用户名至少2个字符'}), 400
-    if len(password) < 4:
-        return jsonify({'error': '密码至少4个字符'}), 400
+    if len(password) < 8:
+        return jsonify({'error': '密码至少8个字符'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -53,7 +53,7 @@ def add_user():
         return jsonify({'error': '用户名已存在'}), 400
 
     log_action('admin_create_user', session['user_id'], {'target_user': user['id']})
-    return jsonify(dict(user)), 201
+    return jsonify(safe_user_dict(user)), 201
 
 @admin_bp.route('/api/admin/users/<int:user_id>', methods=['PUT'])
 @admin_required
@@ -67,11 +67,11 @@ def edit_user(user_id):
     if not user:
         return jsonify({'error': '用户不存在'}), 404
 
-    if data.get('new_password') and len(data.get('new_password', '')) >= 4:
+    if data.get('new_password') and len(data.get('new_password', '')) >= 8:
         reset_user_password(user_id, data['new_password'])
 
     log_action('admin_edit_user', session['user_id'], {'target_user': user_id})
-    return jsonify(dict(user))
+    return jsonify(safe_user_dict(user))
 
 @admin_bp.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
 @admin_required
@@ -175,8 +175,11 @@ def add_type():
     name = (data.get('name') or '').strip()
     unit = (data.get('unit') or 'count').strip()
     icon = (data.get('icon') or '').strip() or None
-    sort_order = int(data.get('sort_order', 0))
-    is_active = int(data.get('is_active', 1))
+    try:
+        sort_order = int(data.get('sort_order', 0))
+        is_active = int(data.get('is_active', 1))
+    except (ValueError, TypeError):
+        return jsonify({'error': '请输入有效数字'}), 400
 
     if not name:
         return jsonify({'error': '请输入类型名称'}), 400

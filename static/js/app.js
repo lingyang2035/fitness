@@ -105,15 +105,15 @@ window.onload = async function() {
         renderTypeGrid();
     }
 
+    // lucide.createIcons() already called by render() → no need to re-scan here
     await loadRecords();
     updateWeekDisplay();
-    lucide.createIcons();
 };
 
 function updateUserBadge() {
     if (!state.currentUser) return;
     const badge = document.getElementById('user-badge');
-    if (badge) badge.innerHTML = `${state.currentUser.avatar_emoji || '👤'} ${state.currentUser.display_name}`;
+    if (badge) badge.innerHTML = `${state.currentUser.avatar_emoji || '👤'} ${escapeHtml(state.currentUser.display_name)}`;
 }
 
 // --- Type Grid (side panel) ---
@@ -123,9 +123,10 @@ function renderTypeGrid() {
     container.innerHTML = state.types.map(t => {
         const emoji = getTypeEmoji(t.name);
         const sel = t.name === state.selectedType;
+        const safeName = t.name.replace(/'/g, "&#39;");
         return `
-            <div onclick="selectType('${t.name}')" class="flex flex-col items-center gap-2 cursor-pointer group">
-                <div class="w-14 h-14 ${sel ? 'bg-emerald-50 text-emerald-600' : 'bg-zinc-50 text-zinc-700'} rounded-2xl flex items-center justify-center text-2xl shadow-sm group-active:scale-95 transition-transform">${emoji}</div>
+            <div data-type="${safeName}" onclick="selectType(this.dataset.type)" class="flex flex-col items-center gap-2 cursor-pointer group">
+                <div class="w-14 h-14 ${sel ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-50 text-zinc-700'} rounded-2xl flex items-center justify-center text-2xl shadow-sm group-active:scale-95 transition-transform">${emoji}</div>
                 <span class="text-xs text-zinc-700 font-semibold">${escapeHtml(t.name)}</span>
             </div>
         `;
@@ -200,8 +201,8 @@ async function saveRecord() {
 }
 
 // --- Delete Record ---
-async function deleteRecord(id) {
-    if (!confirm('确定删除这条记录吗？')) return;
+async function deleteRecord(id, btn) {
+    if (!confirm('确定删除这条记录吗？')) { btn.blur(); return; }
     try {
         await API.deleteRecord(id);
         await loadRecords();
@@ -253,13 +254,14 @@ function renderRecords() {
         display = state.records.filter(r => r.user_id === state.currentUser.id);
     }
 
-    const totalDuration = display.reduce((s, r) => s + r.duration_minutes, 0);
-    const totalDist = display
-        .filter(r => !isCountType(r.exercise_type))
-        .reduce((s, r) => s + r.quantity, 0);
+    let totalDuration = 0, totalDist = 0;
+    for (const r of display) {
+        totalDuration += r.duration_minutes;
+        if (!isCountType(r.exercise_type)) totalDist += r.quantity;
+    }
 
-    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-semibold text-zinc-400 ml-0.5">min</span>';
-    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-semibold text-zinc-400 ml-0.5">km</span>';
+    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-normal text-zinc-900 ml-0.5">min</span>';
+    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-normal text-zinc-900 ml-0.5">km</span>';
 
     const list = document.getElementById('record-list');
     if (display.length === 0) {
@@ -302,7 +304,7 @@ function renderRecords() {
                                 <div class="text-xs text-zinc-400 whitespace-nowrap">${r.quantity} ${unit}</div>
                             </div>
                             ${isOwn || state.currentUser?.role === 'admin' ? `
-                                <button onclick="deleteRecord(${r.id})" class="p-1.5 text-zinc-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
+                                <button onclick="deleteRecord(${r.id}, this)" class="p-1.5 text-zinc-300 hover:text-red-400 hover:bg-red-50 rounded-lg transition-colors">
                                     <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                 </button>
                             ` : ''}
@@ -345,11 +347,11 @@ function renderStats() {
         return;
     }
 
+    const unitMap = getUnitMap();
+
     list.innerHTML = `
         <h3 class="text-sm font-bold text-zinc-400 mb-3 px-1">📊 成员运动统计</h3>
     ` + sorted.map((s, idx) => {
-        const unitMap = getUnitMap();
-
         const typeBreakdown = {};
         s.records.forEach(r => {
             if (!typeBreakdown[r.exercise_type]) typeBreakdown[r.exercise_type] = { count: 0, duration: 0, quantity: 0 };
@@ -367,7 +369,7 @@ function renderStats() {
                         <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:${tc.accent}"></span>
                         ${getTypeEmoji(type)} ${escapeHtml(type)}
                     </span>
-                    <span class="text-zinc-500">${data.duration}min · ${data.quantity}${unit} · ${data.count}次</span>
+                    <span class="text-indigo-400">${data.duration}min · ${data.quantity}${unit} · ${data.count}次</span>
                 </div>
             `;
         }).join('');
@@ -375,7 +377,7 @@ function renderStats() {
         return `
             <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-50 mb-3">
                 <div class="flex items-center gap-4 p-5 pb-3">
-                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 bg-zinc-100 text-zinc-400">
+                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 bg-indigo-50 text-zinc-400">
                         ${escapeHtml(s.display_name[0])}
                     </div>
                     <div class="flex-1 min-w-0">
@@ -399,7 +401,7 @@ function setViewMode(mode) {
     ['all', 'me', 'stats'].forEach(m => {
         const btn = document.getElementById('btn-' + m);
         if (m === mode) {
-            btn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold shadow-sm bg-zinc-900 text-white transition-all';
+            btn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold shadow-sm bg-indigo-600 text-white transition-all';
         } else {
             btn.className = 'flex-1 py-2.5 rounded-xl text-xs font-bold text-zinc-400 transition-all';
         }

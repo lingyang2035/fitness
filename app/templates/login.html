@@ -25,20 +25,20 @@
                 </div>
 
                 <button type="submit" id="submit-btn"
-                        class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-emerald-700 transition-colors">
+                        class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-indigo-700 transition-colors">
                     登录
                 </button>
             </form>
 
             <p class="text-center text-xs text-zinc-400 mt-4">
-                还没有账号？<a href="{{ app_prefix }}/join" class="text-emerald-600 font-semibold">使用邀请码注册</a>
+                还没有账号？<a href="{{ app_prefix }}/join" class="text-indigo-600 font-semibold">使用邀请码注册</a>
             </p>
         </div>
     </div>
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ app_prefix }}/static/js/api.js"></script>
+<script src="{{ app_prefix }}/static/js/api.js?v=1.1.0"></script>
 <script>
 async function handleLogin(e) {
     e.preventDefault();

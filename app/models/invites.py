@@ -46,10 +46,14 @@ def get_invite_tokens(created_by=None):
         ORDER BY t.created_at DESC
     """).fetchall()
 
-def revoke_token(token_id):
+def revoke_token(token_id, created_by=None):
     db = get_db()
-    db.execute("UPDATE invite_tokens SET is_used = 1 WHERE id = ?", (token_id,))
+    if created_by:
+        cursor = db.execute("UPDATE invite_tokens SET is_used = 1 WHERE id = ? AND created_by = ?", (token_id, created_by))
+    else:
+        cursor = db.execute("UPDATE invite_tokens SET is_used = 1 WHERE id = ?", (token_id,))
     db.commit()
+    return cursor.rowcount > 0
 
 def invites_count():
     db = get_db()

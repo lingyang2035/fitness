@@ -21,9 +21,9 @@ function switchTab(tab) {
     ['dashboard', 'users', 'records', 'logs', 'invites'].forEach(t => {
         const btn = document.getElementById('tab-' + t);
         if (t === tab) {
-            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white transition-all';
+            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition-all';
         } else {
-            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all';
+            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold text-indigo-400 transition-all';
         }
     });
     loadTabContent();
@@ -42,7 +42,7 @@ async function loadTabContent() {
             case 'invites': await renderInvites(area); break;
         }
     } catch (e) {
-        area.innerHTML = `<p class="text-center text-red-400 py-8">加载失败: ${e.message}</p>`;
+        area.innerHTML = `<p class="text-center text-red-400 py-8">加载失败: ${escapeHtml(e.message)}</p>`;
     }
     lucide.createIcons();
 }
@@ -52,9 +52,9 @@ async function renderDashboard(area) {
     const data = await API.getDashboard();
     area.innerHTML = `
         <div class="grid grid-cols-2 gap-3 mb-4">
-            <div class="bg-emerald-50 p-4 rounded-2xl">
-                <div class="text-xs text-emerald-400 mb-1">用户总数</div>
-                <div class="text-2xl font-bold text-emerald-700">${data.total_users}</div>
+            <div class="bg-indigo-50 p-4 rounded-2xl">
+                <div class="text-xs text-indigo-400 mb-1">用户总数</div>
+                <div class="text-2xl font-bold text-zinc-800">${data.total_users}</div>
             </div>
             <div class="bg-green-50 p-4 rounded-2xl">
                 <div class="text-xs text-green-400 mb-1">本周记录</div>
@@ -70,9 +70,9 @@ async function renderDashboard(area) {
             </div>
         </div>
         <div class="space-y-2">
-            <button onclick="switchTab('users')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">👥 管理用户 →</button>
-            <button onclick="switchTab('logs')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">📋 查看日志 →</button>
-            <button onclick="switchTab('invites')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">🔗 管理邀请 →</button>
+            <button onclick="switchTab('users')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-indigo-50 transition-colors">👥 管理用户 →</button>
+            <button onclick="switchTab('logs')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-indigo-50 transition-colors">📋 查看日志 →</button>
+            <button onclick="switchTab('invites')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-indigo-50 transition-colors">🔗 管理邀请 →</button>
         </div>
     `;
 }
@@ -85,13 +85,13 @@ async function renderUsers(area) {
     area.innerHTML = `
         <div class="flex justify-between items-center mb-4">
             <h3 class="font-bold text-zinc-800">用户列表 (${users.length})</h3>
-            <button onclick="openUserModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">+ 添加用户</button>
+            <button onclick="openUserModal()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors">+ 添加用户</button>
         </div>
         <div class="space-y-2">
             ${users.map(u => `
                 <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${u.role === 'admin' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${u.role === 'admin' ? 'bg-amber-100 text-amber-600' : 'bg-indigo-100 text-indigo-600'}">
                             ${escapeHtml(u.display_name[0])}
                         </div>
                         <div>
@@ -104,7 +104,7 @@ async function renderUsers(area) {
                         </div>
                     </div>
                     <div class="flex gap-1">
-                        <button onclick="openUserModal(${u.id})" class="p-2 text-zinc-400 hover:text-emerald-600">
+                        <button onclick="openUserModal(${u.id})" class="p-2 text-zinc-400 hover:text-indigo-600">
                             <i data-lucide="edit-2" class="w-4 h-4"></i>
                         </button>
                         ${!u.is_active ? `
@@ -208,7 +208,7 @@ async function renderRecords(area) {
             ${records.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无记录</p>' : records.map(r => `
                 <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-xs">
+                        <div class="w-8 h-8 bg-indigo-100 text-indigo-600 rounded-lg flex items-center justify-center font-bold text-xs">
                             ${(r.user_display_name || '?')[0]}
                         </div>
                         <div>
@@ -251,21 +251,21 @@ async function renderLogs(area) {
             ${logs.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无日志</p>' : logs.map(l => `
                 <div class="p-2 bg-zinc-50 rounded-lg text-xs">
                     <div class="flex justify-between">
-                        <span class="font-medium text-zinc-700">${l.action}</span>
+                        <span class="font-medium text-zinc-700">${escapeHtml(l.action)}</span>
                         <span class="text-zinc-400">${l.created_at ? l.created_at.slice(0, 19) : ''}</span>
                     </div>
                     <div class="text-zinc-400 mt-0.5">
-                        ${l.user_display_name || '匿名'} · ${l.ip_address || '-'}
+                        ${escapeHtml(l.user_display_name || '匿名')} · ${escapeHtml(l.ip_address || '-')}
                     </div>
                 </div>
             `).join('')}
         </div>
         <div class="flex justify-between items-center">
             <button onclick="logsPage=Math.max(1,logsPage-1);loadTabContent()" ${logsPage <= 1 ? 'disabled' : ''}
-                    class="px-3 py-1.5 bg-zinc-100 rounded-lg text-xs font-medium disabled:opacity-30">上一页</button>
+                    class="px-3 py-1.5 bg-indigo-50 rounded-lg text-xs font-medium disabled:opacity-30">上一页</button>
             <span class="text-xs text-zinc-400">${pag.page} / ${pag.total_pages || 1}</span>
             <button onclick="logsPage++;loadTabContent()" ${logsPage >= pag.total_pages ? 'disabled' : ''}
-                    class="px-3 py-1.5 bg-zinc-100 rounded-lg text-xs font-medium disabled:opacity-30">下一页</button>
+                    class="px-3 py-1.5 bg-indigo-50 rounded-lg text-xs font-medium disabled:opacity-30">下一页</button>
         </div>
     `;
 }
@@ -278,12 +278,12 @@ async function renderInvites(area) {
     area.innerHTML = `
         <div class="flex justify-between items-center mb-3">
             <h3 class="font-bold text-zinc-800">邀请令牌</h3>
-            <button onclick="generateAdminInvite()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">+ 生成新邀请</button>
+            <button onclick="generateAdminInvite()" class="bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-indigo-700 transition-colors">+ 生成新邀请</button>
         </div>
-        <div id="admin-invite-url-box" class="hidden bg-emerald-50 p-4 rounded-xl mb-4">
-            <p class="text-xs text-emerald-400 mb-1">新邀请链接</p>
-            <p class="text-sm font-mono text-emerald-700 break-all" id="admin-invite-url-text"></p>
-            <button onclick="copyAdminInviteUrl()" class="mt-2 w-full bg-emerald-600 text-white py-2 rounded-xl font-bold text-xs hover:bg-emerald-700 transition-colors">复制链接</button>
+        <div id="admin-invite-url-box" class="hidden bg-indigo-50 p-4 rounded-xl mb-4">
+            <p class="text-xs text-indigo-400 mb-1">新邀请链接</p>
+            <p class="text-sm font-mono text-zinc-800 break-all" id="admin-invite-url-text"></p>
+            <button onclick="copyAdminInviteUrl()" class="mt-2 w-full bg-indigo-600 text-white py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 transition-colors">复制链接</button>
         </div>
         <div class="space-y-2">
             ${invites.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无邀请</p>' : invites.map(inv => {
@@ -293,7 +293,7 @@ async function renderInvites(area) {
                     <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                         <div>
                             <div class="text-sm font-mono text-zinc-700">${inv.token.slice(0, 12)}...</div>
-                            <div class="text-xs text-zinc-400">创建者: ${inv.creator_name || 'N/A'} · <span class="${color}">${status}</span></div>
+                            <div class="text-xs text-zinc-400">创建者: ${escapeHtml(inv.creator_name || 'N/A')} · <span class="${color}">${status}</span></div>
                         </div>
                         ${!inv.is_used ? `<button onclick="revokeAdminInvite(${inv.id})" class="text-xs text-red-400 hover:text-red-600 font-medium">撤销</button>` : ''}
                     </div>

@@ -45,6 +45,10 @@ def list_tokens():
 @invite_bp.route('/api/invite/<int:token_id>', methods=['DELETE'])
 @login_required
 def revoke(token_id):
-    revoke_token(token_id)
+    # Admin can revoke any token; regular user can only revoke their own
+    restrict_user = None if session.get('role') == 'admin' else session['user_id']
+    success = revoke_token(token_id, created_by=restrict_user)
+    if not success:
+        return jsonify({'error': '令牌不存在或无权撤销'}), 404
     log_action('revoke_invite', session['user_id'], {'token_id': token_id})
     return jsonify({'message': '已撤销'})

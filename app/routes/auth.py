@@ -5,7 +5,7 @@ from app.models.users import (
 )
 from app.models.invites import verify_token, mark_token_used
 from app.auth import login_required
-from app.utils import log_action
+from app.utils import log_action, safe_user_dict
 import time
 
 auth_bp = Blueprint('auth', __name__)
@@ -43,8 +43,8 @@ def setup():
 
     if not username or len(username) < 2:
         return jsonify({'error': '用户名至少2个字符'}), 400
-    if len(password) < 4:
-        return jsonify({'error': '密码至少4个字符'}), 400
+    if len(password) < 8:
+        return jsonify({'error': '密码至少8个字符'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -58,7 +58,7 @@ def setup():
     session['display_name'] = user['display_name']
 
     log_action('admin_setup', user['id'])
-    return jsonify(dict(user)), 201
+    return jsonify(safe_user_dict(user)), 201
 
 @auth_bp.route('/api/auth/login', methods=['POST'])
 def login():
@@ -96,6 +96,12 @@ def login():
 
 @auth_bp.route('/api/auth/register', methods=['POST'])
 def register():
+    # Rate limit: 5 requests per 60s per IP
+    key = f"register:{request.remote_addr}"
+    if _check_rate_limit(key):
+        return jsonify({'error': '请求过于频繁，请稍后重试'}), 429
+    _record_attempt(key)
+
     data = request.get_json() or {}
     username = (data.get('username') or '').strip()
     password = data.get('password') or ''
@@ -106,8 +112,8 @@ def register():
         return jsonify({'error': '需要邀请令牌'}), 400
     if not username or len(username) < 2:
         return jsonify({'error': '用户名至少2个字符'}), 400
-    if len(password) < 4:
-        return jsonify({'error': '密码至少4个字符'}), 400
+    if len(password) < 8:
+        return jsonify({'error': '密码至少8个字符'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -128,7 +134,7 @@ def register():
     session['display_name'] = user['display_name']
 
     log_action('register', user['id'], {'token': token[:8] + '...'})
-    return jsonify(dict(user)), 201
+    return jsonify(safe_user_dict(user)), 201
 
 @auth_bp.route('/api/auth/logout', methods=['POST'])
 @login_required
@@ -159,8 +165,14 @@ def change_password():
     old_password = data.get('old_password') or ''
     new_password = data.get('new_password') or ''
 
-    if len(new_password) < 4:
-        return jsonify({'error': '新密码至少4个字符'}), 400
+    # Rate limit: 5 requests per 60s per user
+    key = f"password_change:{session['user_id']}"
+    if _check_rate_limit(key):
+        return jsonify({'error': '请求过于频繁，请稍后重试'}), 429
+    _record_attempt(key)
+
+    if len(new_password) < 8:
+        return jsonify({'error': '新密码至少8个字符'}), 400
 
     user = get_user_by_id(session['user_id'])
     if not user:

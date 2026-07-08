@@ -8,3 +8,9 @@ data/
 dist/
 build/
 .claude/
+
+# Node
+node_modules/
+static/css/input.css
+package-lock.json
+package.json

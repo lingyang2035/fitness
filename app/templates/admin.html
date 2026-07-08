@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}管理后台 - {{ app_name }}{% endblock %}
 {% block body %}
-<div class="min-h-screen bg-zinc-100">
+<div class="min-h-screen bg-indigo-50">
     <div class="max-w-lg mx-auto p-4">
         <!-- Header -->
         <div class="flex justify-between items-center mb-4">
@@ -9,21 +9,21 @@
                 <h1 class="text-xl font-black text-zinc-800">⚙️ 管理后台</h1>
                 <p class="text-xs text-zinc-400" id="user-info"></p>
             </div>
-            <a href="{{ app_prefix }}/app" class="text-sm text-emerald-600 font-semibold hover:underline">← 返回应用</a>
+            <a href="{{ app_prefix }}/app" class="text-sm text-indigo-600 font-semibold hover:underline">← 返回应用</a>
         </div>
 
         <!-- Tabs -->
         <div class="bg-white p-1 rounded-2xl flex mb-4 shadow-sm">
             <button onclick="switchTab('dashboard')" id="tab-dashboard"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white transition-all">概览</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold bg-indigo-600 text-white transition-all">概览</button>
             <button onclick="switchTab('users')" id="tab-users"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all">用户</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-indigo-400 transition-all">用户</button>
             <button onclick="switchTab('records')" id="tab-records"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all">记录</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-indigo-400 transition-all">记录</button>
             <button onclick="switchTab('logs')" id="tab-logs"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all">日志</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-indigo-400 transition-all">日志</button>
             <button onclick="switchTab('invites')" id="tab-invites"
-                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all">邀请</button>
+                    class="flex-1 py-2 rounded-xl text-xs font-semibold text-indigo-400 transition-all">邀请</button>
         </div>
 
         <!-- Content Area -->
@@ -36,7 +36,7 @@
     <div class="bg-white w-full max-w-lg rounded-t-[32px] p-6 max-h-[80vh] overflow-y-auto">
         <div class="flex justify-between items-center mb-5">
             <h2 class="text-lg font-bold text-zinc-800" id="user-modal-title">编辑用户</h2>
-            <button onclick="closeUserModal()" class="p-1 hover:bg-zinc-100 rounded-full">
+            <button onclick="closeUserModal()" class="p-1 hover:bg-indigo-50 rounded-full">
                 <i data-lucide="x"></i>
             </button>
         </div>
@@ -68,7 +68,7 @@
                 <input type="checkbox" id="edit-active" checked class="w-4 h-4">
                 <label for="edit-active" class="text-sm text-zinc-600">账号激活</label>
             </div>
-            <button type="submit" class="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold hover:bg-emerald-700 transition-colors">
+            <button type="submit" class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition-colors">
                 保存
             </button>
         </form>
@@ -76,6 +76,6 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ app_prefix }}/static/js/api.js"></script>
-<script src="{{ app_prefix }}/static/js/admin.js"></script>
+<script src="{{ app_prefix }}/static/js/api.js?v=1.1.0"></script>
+<script src="{{ app_prefix }}/static/js/admin.js?v=1.1.0"></script>
 {% endblock %}

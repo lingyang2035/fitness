@@ -102,6 +102,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_records_week ON exercise_records(week_start);
         CREATE INDEX IF NOT EXISTS idx_records_user ON exercise_records(user_id);
         CREATE INDEX IF NOT EXISTS idx_records_type ON exercise_records(exercise_type);
+        CREATE INDEX IF NOT EXISTS idx_records_recorded ON exercise_records(recorded_at);
         CREATE INDEX IF NOT EXISTS idx_logs_user ON access_logs(user_id);
         CREATE INDEX IF NOT EXISTS idx_logs_action ON access_logs(action);
         CREATE INDEX IF NOT EXISTS idx_logs_created ON access_logs(created_at);

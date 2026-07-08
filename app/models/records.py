@@ -56,11 +56,11 @@ def delete_record(record_id, user_id=None):
     """Delete a record. If user_id provided, only delete if owned by that user."""
     db = get_db()
     if user_id:
-        db.execute("DELETE FROM exercise_records WHERE id = ? AND user_id = ?", (record_id, user_id))
+        cursor = db.execute("DELETE FROM exercise_records WHERE id = ? AND user_id = ?", (record_id, user_id))
     else:
-        db.execute("DELETE FROM exercise_records WHERE id = ?", (record_id,))
+        cursor = db.execute("DELETE FROM exercise_records WHERE id = ?", (record_id,))
     db.commit()
-    return db.changes > 0
+    return cursor.rowcount > 0
 
 def get_week_summary(week_start, user_id=None):
     db = get_db()
@@ -86,9 +86,20 @@ def get_records_count_this_week(week_start):
     row = db.execute("SELECT COUNT(*) as cnt FROM exercise_records WHERE week_start = ?", (week_start,)).fetchone()
     return row['cnt'] if row else 0
 
+_exercise_types_cache = None
+
 def get_exercise_types():
-    db = get_db()
-    return db.execute("SELECT * FROM exercise_types WHERE is_active = 1 ORDER BY sort_order").fetchall()
+    global _exercise_types_cache
+    if _exercise_types_cache is None:
+        db = get_db()
+        _exercise_types_cache = db.execute(
+            "SELECT * FROM exercise_types WHERE is_active = 1 ORDER BY sort_order"
+        ).fetchall()
+    return _exercise_types_cache
+
+def _invalidate_types_cache():
+    global _exercise_types_cache
+    _exercise_types_cache = None
 
 def get_exercise_type_by_name(name):
     db = get_db()
@@ -104,3 +115,4 @@ def upsert_exercise_type(name, unit, icon=None, sort_order=0, is_active=1):
         (name, unit, icon, sort_order, is_active)
     )
     db.commit()
+    _invalidate_types_cache()

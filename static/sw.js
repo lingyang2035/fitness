@@ -1,11 +1,11 @@
-const CACHE_NAME = 'fitness-v1';
+const CACHE_NAME = 'fitness-v1.1.0';
 const STATIC_ASSETS = [
+    '/static/css/tailwind.css',
     '/static/js/api.js',
     '/static/js/app.js',
     '/static/js/admin.js',
     '/static/manifest.json',
-    'https://cdn.tailwindcss.com',
-    'https://unpkg.com/lucide@latest'
+    'https://unpkg.com/lucide@0.472.0'
 ];
 
 self.addEventListener('install', (event) => {
@@ -14,6 +14,8 @@ self.addEventListener('install', (event) => {
             return cache.addAll(STATIC_ASSETS);
         })
     );
+    // Activate immediately — don't wait for old tabs to close
+    self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
@@ -24,32 +26,38 @@ self.addEventListener('activate', (event) => {
             );
         })
     );
+    // Take control of all clients immediately
+    self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-    // Skip API calls — they should go to network
+    // Skip API calls — always go to network
     if (event.request.url.includes('/api/')) {
         return;
     }
 
+    // Network-first strategy: try network, fall back to cache
     event.respondWith(
-        caches.match(event.request).then((cached) => {
-            const fetched = fetch(event.request).then((response) => {
-                if (response && response.status === 200 && response.type === 'basic') {
-                    const clone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, clone);
-                    });
-                }
-                return response;
-            }).catch(() => {
+        fetch(event.request).then((response) => {
+            if (response && response.status === 200 && response.type === 'basic') {
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => {
+                    cache.put(event.request, clone);
+                });
+            }
+            return response;
+        }).catch(() => {
+            return caches.match(event.request).then((cached) => {
+                if (cached) return cached;
                 // Offline fallback for navigation requests
                 if (event.request.mode === 'navigate') {
-                    return caches.match('/static/offline.html');
+                    return new Response('离线状态，请连接网络后重试', {
+                        status: 503,
+                        headers: { 'Content-Type': 'text/plain; charset=utf-8' }
+                    });
                 }
-                return cached;
+                return new Response('', { status: 408 });
             });
-            return cached || fetched;
         })
     );
 });

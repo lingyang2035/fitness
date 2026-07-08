@@ -35,7 +35,7 @@
                 </div>
 
                 <button type="submit" id="submit-btn"
-                        class="w-full bg-emerald-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-emerald-700 transition-colors">
+                        class="w-full bg-indigo-600 text-white py-3.5 rounded-xl font-bold mt-6 hover:bg-indigo-700 transition-colors">
                     创建管理员账号
                 </button>
             </form>
@@ -44,7 +44,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ app_prefix }}/static/js/api.js"></script>
+<script src="{{ app_prefix }}/static/js/api.js?v=1.1.0"></script>
 <script>
 async function handleSetup(e) {
     e.preventDefault();

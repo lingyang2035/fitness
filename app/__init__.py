@@ -156,9 +156,17 @@ self.addEventListener('fetch', (event) => {{
     app.register_blueprint(invite_bp)
     app.register_blueprint(admin_bp)
 
-    # Initialize database on first request
-    @app.before_request
-    def _init_db():
+    # Initialize database once at startup
+    with app.app_context():
         init_db()
+
+    # Security headers (HSTS only when HTTPS is enforced)
+    @app.after_request
+    def add_security_headers(response):
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        if app.config.get('SESSION_COOKIE_SECURE'):
+            response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        return response
 
     return app

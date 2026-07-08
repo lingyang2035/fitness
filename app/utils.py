@@ -38,6 +38,14 @@ def session_get(key):
     except RuntimeError:
         return None
 
+# Safe fields to expose in API responses (excludes password_hash)
+_USER_SAFE_FIELDS = ('id', 'username', 'display_name', 'role', 'avatar_emoji',
+                     'is_active', 'created_at', 'last_login', 'family_id')
+
+def safe_user_dict(user):
+    """Return a dict with only safe-to-expose fields, stripping password_hash."""
+    return {k: user[k] for k in _USER_SAFE_FIELDS if k in user.keys()}
+
 def cleanup_old_logs():
     """Remove logs older than LOG_RETENTION_DAYS."""
     db = get_db()

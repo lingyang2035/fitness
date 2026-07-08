@@ -20,7 +20,10 @@ def list_records():
     if mode == 'me':
         records = get_records(week_start=week_start, user_id=session['user_id'])
     elif user_id_param:
-        records = get_records(week_start=week_start, user_id=int(user_id_param))
+        try:
+            records = get_records(week_start=week_start, user_id=int(user_id_param))
+        except (ValueError, TypeError):
+            return jsonify({'error': '无效的用户ID'}), 400
     else:
         records = get_records(week_start=week_start)
 
@@ -53,8 +56,11 @@ def list_records():
 def add_record():
     data = request.get_json() or {}
     exercise_type = (data.get('exercise_type') or '').strip()
-    duration_minutes = int(data.get('duration_minutes', 0))
-    quantity = float(data.get('quantity', 0))
+    try:
+        duration_minutes = int(data.get('duration_minutes', 0))
+        quantity = float(data.get('quantity', 0))
+    except (ValueError, TypeError):
+        return jsonify({'error': '请输入有效数字'}), 400
     note = (data.get('note') or '').strip() or None
 
     if not exercise_type:
