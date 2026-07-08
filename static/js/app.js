@@ -3,6 +3,8 @@ const state = {
     viewMode: 'all',
     weekStart: getMonday(new Date()),
     selectedType: '跑步',
+    selectedDurationMin: 0,
+    selectedCount: 0,
     currentUser: null,
     records: [],
     types: [],
@@ -87,19 +89,20 @@ window.onload = async function() {
 
     updateUserBadge();
     lucide.createIcons();
+    initPickers();
 
     try {
         const typesRes = await API.getTypes();
         state.types = typesRes.types || [];
         state.selectedType = state.types[0]?.name || '跑步';
-        renderTypeSelector();
+        renderTypeGrid();
     } catch (e) {
         state.types = [
             {name: '跑步', unit: 'km'}, {name: '壶铃', unit: 'count'},
             {name: '拉伸', unit: 'count'}, {name: '跳绳', unit: 'count'},
             {name: '游泳', unit: 'km'}, {name: '引体向上', unit: 'count'}
         ];
-        renderTypeSelector();
+        renderTypeGrid();
     }
 
     await loadRecords();
@@ -113,29 +116,42 @@ function updateUserBadge() {
     if (badge) badge.innerHTML = `${state.currentUser.avatar_emoji || '👤'} ${state.currentUser.display_name}`;
 }
 
-// --- Type Selector ---
-function renderTypeSelector() {
-    const container = document.getElementById('type-selector');
+// --- Type Grid (side panel) ---
+function renderTypeGrid() {
+    const container = document.getElementById('type-grid');
+    if (!container) return;
     container.innerHTML = state.types.map(t => {
-        const c = getTypeColor(t.name);
+        const emoji = getTypeEmoji(t.name);
         const sel = t.name === state.selectedType;
-        return `<button onclick="selectType('${t.name}', this)" class="type-btn py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${sel?'shadow-sm ring-2':'bg-zinc-50 text-zinc-400 hover:bg-zinc-100'}" style="${sel?'background:'+c.light+';color:'+c.accent+';--tw-ring-color:'+c.accent:''}">${escapeHtml(t.name)}</button>`;
+        return `
+            <div onclick="selectType('${t.name}')" class="flex flex-col items-center gap-2 cursor-pointer group">
+                <div class="w-14 h-14 ${sel ? 'bg-emerald-50 text-emerald-600' : 'bg-zinc-50 text-zinc-700'} rounded-2xl flex items-center justify-center text-2xl shadow-sm group-active:scale-95 transition-transform">${emoji}</div>
+                <span class="text-xs text-zinc-700 font-semibold">${escapeHtml(t.name)}</span>
+            </div>
+        `;
     }).join('');
 }
 
-function selectType(type, btn) {
+function selectType(type) {
     state.selectedType = type;
-    const c = getTypeColor(type);
-    document.querySelectorAll('.type-btn').forEach(b => { b.removeAttribute('style'); b.className='type-btn py-2.5 rounded-xl text-xs font-bold transition-all duration-200 bg-zinc-50 text-zinc-400 hover:bg-zinc-100'; });
-    btn.className='type-btn py-2.5 rounded-xl text-xs font-bold transition-all duration-200 shadow-sm ring-2';
-    btn.style.cssText='background:'+c.light+';color:'+c.accent+';--tw-ring-color:'+c.accent;
+    const emoji = getTypeEmoji(type);
 
+    // Update main modal display
+    document.getElementById('val-type').innerText = type;
+    document.getElementById('form-big-icon').innerText = emoji;
+
+    // Update count/distance label and value
     const typeObj = state.types.find(t => t.name === type);
     const isCount = typeObj ? typeObj.unit === 'count' : isCountType(type);
-    document.getElementById('dist-label').innerText = isCount ? '数量 (个)' : '距离 (km)';
-    const distInput = document.getElementById('input-dist');
-    distInput.value = '0';
-    distInput.step = isCount ? '1' : '0.1';
+    document.getElementById('label-count').innerText = isCount ? '数量 (个)' : '距离 (km)';
+
+    // Reset count value and update unit display
+    state.selectedCount = 0;
+    document.getElementById('val-count').innerText = `0 ${isCount ? '个' : 'km'}`;
+
+    // Re-render type grid
+    renderTypeGrid();
+    closeTypePanel();
 }
 
 // --- Data Loading ---
@@ -155,16 +171,17 @@ async function loadRecords() {
 
 // --- Save Record ---
 async function saveRecord() {
-    const duration = parseInt(document.getElementById('input-dur').value) || 0;
-    const quantity = parseFloat(document.getElementById('input-dist').value) || 0;
+    const duration = state.selectedDurationMin;
+    const quantity = state.selectedCount;
 
     if (duration <= 0) {
         showToast('请输入有效时长');
         return;
     }
     if (quantity <= 0) {
-        const label = document.getElementById('dist-label').innerText;
-        showToast(label === '数量 (个)' ? '请输入有效数量' : '请输入有效距离');
+        const typeObj = state.types.find(t => t.name === state.selectedType);
+        const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
+        showToast(isCount ? '请输入有效数量' : '请输入有效距离');
         return;
     }
 
@@ -241,8 +258,8 @@ function renderRecords() {
         .filter(r => !isCountType(r.exercise_type))
         .reduce((s, r) => s + r.quantity, 0);
 
-    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-medium text-zinc-400 ml-0.5">min</span>';
-    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-medium text-zinc-400 ml-0.5">km</span>';
+    document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-semibold text-zinc-400 ml-0.5">min</span>';
+    document.getElementById('stat-dist').innerHTML = totalDist.toFixed(1) + '<span class="text-sm font-semibold text-zinc-400 ml-0.5">km</span>';
 
     const list = document.getElementById('record-list');
     if (display.length === 0) {
@@ -403,16 +420,23 @@ function toggleModal(show) {
     const modal = document.getElementById('modal');
     const content = document.getElementById('modal-content');
 
-    if (state.types.length > 0) {
+    if (show && state.types.length > 0) {
+        // Reset form to defaults
         state.selectedType = state.types[0].name;
-        renderTypeSelector();
+        state.selectedDurationMin = 0;
+        state.selectedCount = 0;
+
         const typeObj = state.types[0];
         const isCount = typeObj ? typeObj.unit === 'count' : false;
-        document.getElementById('dist-label').innerText = isCount ? '数量 (个)' : '距离 (km)';
-        document.getElementById('input-dur').value = '0';
-        const distInput = document.getElementById('input-dist');
-        distInput.value = '0';
-        distInput.step = isCount ? '1' : '0.1';
+        const emoji = getTypeEmoji(state.selectedType);
+
+        document.getElementById('val-type').innerText = state.selectedType;
+        document.getElementById('form-big-icon').innerText = emoji;
+        document.getElementById('val-duration').innerText = '00:00:00';
+        document.getElementById('label-count').innerText = isCount ? '数量 (个)' : '距离 (km)';
+        document.getElementById('val-count').innerText = `0 ${isCount ? '个' : 'km'}`;
+
+        renderTypeGrid();
     }
 
     if (show) {
@@ -426,6 +450,103 @@ function toggleModal(show) {
         content.classList.add('translate-y-full');
         setTimeout(() => modal.classList.add('pointer-events-none'), 300);
     }
+}
+
+// --- Type Panel ---
+function openTypePanel() {
+    renderTypeGrid();
+    document.getElementById('type-panel').classList.add('active');
+}
+function closeTypePanel() {
+    document.getElementById('type-panel').classList.remove('active');
+}
+
+// --- Duration Picker ---
+function openDurationModal() {
+    document.getElementById('duration-modal').classList.add('active');
+    const totalSeconds = state.selectedDurationMin * 60;
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = totalSeconds % 60;
+    scrollToValue('picker-hour', h);
+    scrollToValue('picker-minute', m);
+    scrollToValue('picker-second', s);
+}
+function closeDurationModal() {
+    document.getElementById('duration-modal').classList.remove('active');
+}
+function confirmDuration() {
+    const h = parseInt(getPickerValue('picker-hour'));
+    const m = parseInt(getPickerValue('picker-minute'));
+    const s = parseInt(getPickerValue('picker-second'));
+    document.getElementById('val-duration').innerText =
+        `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    state.selectedDurationMin = Math.round((h * 3600 + m * 60 + s) / 60) || 1;
+    closeDurationModal();
+}
+
+// --- Count/Distance Modal ---
+function openCountModal() {
+    const typeObj = state.types.find(t => t.name === state.selectedType);
+    const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
+    const unit = isCount ? '个' : 'km';
+    document.getElementById('count-modal-title').innerText = isCount ? '输入数量' : '输入距离';
+    document.getElementById('count-modal-unit').innerText = unit;
+    document.getElementById('count-input').value = state.selectedCount;
+    document.getElementById('count-input').step = isCount ? '1' : '0.1';
+    document.getElementById('count-modal').classList.add('active');
+}
+function closeCountModal() {
+    document.getElementById('count-modal').classList.remove('active');
+}
+function confirmCount() {
+    state.selectedCount = parseFloat(document.getElementById('count-input').value || 0);
+    const typeObj = state.types.find(t => t.name === state.selectedType);
+    const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
+    const unit = isCount ? '个' : 'km';
+    document.getElementById('val-count').innerText = `${state.selectedCount} ${unit}`;
+    closeCountModal();
+}
+
+// --- iOS Picker Helpers ---
+function initPickers() {
+    fillPickerHTML('picker-hour', 24);
+    fillPickerHTML('picker-minute', 60);
+    fillPickerHTML('picker-second', 60);
+    // Set initial position to 00:00:00 in the gray bar
+    setTimeout(() => {
+        scrollToValue('picker-hour', 0);
+        scrollToValue('picker-minute', 0);
+        scrollToValue('picker-second', 0);
+    }, 100);
+}
+function fillPickerHTML(id, count) {
+    const col = document.getElementById(id);
+    if (!col) return;
+    // Top spacers (no snap — so they don't compete with real items as snap targets)
+    let html = '<div style="height:40px;flex-shrink:0"></div><div style="height:40px;flex-shrink:0"></div>';
+    for (let i = 0; i < count; i++) {
+        const str = i.toString().padStart(2, '0');
+        html += `<div class="ios-picker-item text-zinc-700 font-bold text-sm" data-val="${str}">${str}</div>`;
+    }
+    // Bottom spacers (no snap)
+    html += '<div style="height:40px;flex-shrink:0"></div><div style="height:40px;flex-shrink:0"></div>';
+    col.innerHTML = html;
+}
+function scrollToValue(id, val) {
+    const col = document.getElementById(id);
+    if (!col) return;
+    // 2 spacers (80px) + item center (20px) - container center (80px) = item start offset
+    // scrollTop = val * 40 places item "val" top at container top, need +20 to center it in the gray bar
+    setTimeout(() => { col.scrollTop = val * 40 + 20; }, 100);
+}
+function getPickerValue(id) {
+    const col = document.getElementById(id);
+    if (!col) return '00';
+    const index = Math.round(col.scrollTop / 40);
+    const items = col.querySelectorAll('[data-val]');
+    if (items[index]) return items[index].getAttribute('data-val');
+    return '00';
 }
 
 // --- Invite ---

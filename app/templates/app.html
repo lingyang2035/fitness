@@ -61,19 +61,19 @@
 
         <!-- Summary Cards -->
         <div class="px-5 py-3 grid grid-cols-2 gap-3 flex-shrink-0" id="summary-cards">
-            <div class="bg-white p-4 rounded-2xl shadow-sm">
-                <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-zinc-300"></i>
-                    <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">总时长</span>
+            <div class="bg-white p-4 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-zinc-100/80">
+                <div class="flex items-center gap-1.5 mb-2">
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">总时长</span>
                 </div>
-                <div class="text-[26px] font-black text-zinc-800 leading-none" id="stat-time">0<span class="text-sm font-medium text-zinc-400 ml-0.5">min</span></div>
+                <div class="text-[28px] font-black leading-none" id="stat-time" style="background:linear-gradient(135deg,#059669,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0<span class="text-sm font-semibold ml-0.5" style="background:linear-gradient(135deg,#059669,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">min</span></div>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm">
-                <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="route" class="w-3.5 h-3.5 text-zinc-300"></i>
-                    <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">总里程</span>
+            <div class="bg-white p-4 rounded-[20px] shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-zinc-100/80">
+                <div class="flex items-center gap-1.5 mb-2">
+                    <i data-lucide="route" class="w-3.5 h-3.5 text-emerald-400"></i>
+                    <span class="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">总里程</span>
                 </div>
-                <div class="text-[26px] font-black text-zinc-800 leading-none" id="stat-dist">0<span class="text-sm font-medium text-zinc-400 ml-0.5">km</span></div>
+                <div class="text-[28px] font-black leading-none" id="stat-dist" style="background:linear-gradient(135deg,#059669,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">0<span class="text-sm font-semibold ml-0.5" style="background:linear-gradient(135deg,#059669,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">km</span></div>
             </div>
         </div>
 
@@ -101,34 +101,95 @@
 
         <!-- Add Record Modal -->
         <div id="modal" class="absolute inset-0 bg-black/40 opacity-0 pointer-events-none z-50 flex items-end justify-center transition-opacity duration-300">
-            <div id="modal-content" class="bg-white w-full rounded-t-[32px] p-6 translate-y-full transition-transform duration-300">
-                <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-zinc-800">记录新运动</h2>
+            <div id="modal-content" class="bg-white w-full rounded-t-[32px] p-6 translate-y-full transition-transform duration-300 flex flex-col max-h-[90%]">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-lg font-bold text-zinc-800">添加运动记录</h2>
                     <button onclick="toggleModal(false)" class="p-1.5 hover:bg-zinc-100 rounded-full transition-colors">
                         <i data-lucide="x" class="w-5 h-5 text-zinc-400"></i>
                     </button>
                 </div>
-                <div class="space-y-5">
-                    <div>
-                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-2.5 block tracking-wide">运动类型</label>
-                        <div class="grid grid-cols-3 gap-2" id="type-selector"></div>
+
+                <div class="space-y-4 overflow-y-auto flex-1 pb-4">
+                    <!-- Large emoji badge -->
+                    <div class="flex justify-center py-2">
+                        <div id="form-big-icon" class="w-20 h-20 bg-emerald-100 text-4xl rounded-full flex items-center justify-center shadow-sm">🏃</div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="text-xs text-zinc-400 font-semibold uppercase tracking-wide">时长 (min)</label>
-                            <input type="number" id="input-dur" value="0" min="0" max="480"
-                                   class="w-full mt-2 p-3 bg-zinc-50 rounded-xl font-bold text-sm border border-zinc-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
+
+                    <!-- List-style config items -->
+                    <div class="bg-zinc-50 rounded-2xl border border-zinc-100 overflow-hidden divide-y divide-zinc-200/60">
+                        <!-- Exercise type → side panel -->
+                        <div onclick="openTypePanel()" class="p-4 flex justify-between items-center active:bg-zinc-100 cursor-pointer transition-colors">
+                            <span class="text-zinc-700 font-medium text-sm">运动类型</span>
+                            <div class="flex items-center gap-1 text-zinc-400">
+                                <span id="val-type" class="text-zinc-800 font-bold text-sm">跑步</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </div>
                         </div>
-                        <div>
-                            <label id="dist-label" class="text-xs text-zinc-400 font-semibold uppercase tracking-wide">距离 (km)</label>
-                            <input type="number" id="input-dist" value="0" step="0.1" min="0"
-                                   class="w-full mt-2 p-3 bg-zinc-50 rounded-xl font-bold text-sm border border-zinc-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
+                        <!-- Duration → iOS picker -->
+                        <div onclick="openDurationModal()" class="p-4 flex justify-between items-center active:bg-zinc-100 cursor-pointer transition-colors">
+                            <span class="text-zinc-700 font-medium text-sm">运动时长</span>
+                            <div class="flex items-center gap-1 text-zinc-400">
+                                <span id="val-duration" class="text-zinc-800 font-bold text-sm">00:00:00</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <!-- Count/distance → input modal -->
+                        <div onclick="openCountModal()" class="p-4 flex justify-between items-center active:bg-zinc-100 cursor-pointer transition-colors">
+                            <span id="label-count" class="text-zinc-700 font-medium text-sm">距离 (km)</span>
+                            <div class="flex items-center gap-1 text-zinc-400">
+                                <span id="val-count" class="text-zinc-800 font-bold text-sm">0 km</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4"></i>
+                            </div>
                         </div>
                     </div>
+
                     <button onclick="saveRecord()"
                             class="w-full bg-emerald-600 text-white py-4 rounded-xl font-bold hover:bg-emerald-700 transition-colors active:scale-[0.98] shadow-lg shadow-emerald-200">
                         确认保存
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Type Side Panel -->
+        <div id="type-panel" class="absolute inset-0 bg-white z-[60] slide-panel translate-x-full flex flex-col">
+            <div class="p-4 border-b border-zinc-100 flex items-center gap-2 flex-shrink-0">
+                <button onclick="closeTypePanel()" class="p-1 hover:bg-zinc-100 rounded-full"><i data-lucide="chevron-left"></i></button>
+                <span class="font-bold text-lg text-zinc-800">选择运动</span>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto">
+                <div class="grid grid-cols-3 gap-y-8 gap-x-4 text-center" id="type-grid"></div>
+            </div>
+        </div>
+
+        <!-- Duration Picker Modal -->
+        <div id="duration-modal" class="absolute inset-0 bg-black/40 z-[70] custom-modal-mask flex items-end justify-center">
+            <div class="bg-white w-full rounded-t-[32px] p-6 custom-modal-container flex flex-col">
+                <div class="text-center font-bold text-lg text-zinc-800 mb-6">运动时长</div>
+                <div class="ios-picker-wrapper grid grid-cols-3 bg-zinc-50 rounded-2xl relative mb-6">
+                    <div class="absolute inset-x-2 top-1/2 -translate-y-1/2 h-10 bg-zinc-200/60 rounded-xl pointer-events-none border-y border-zinc-200"></div>
+                    <div class="ios-picker-column text-center" id="picker-hour"></div>
+                    <div class="ios-picker-column text-center" id="picker-minute"></div>
+                    <div class="ios-picker-column text-center" id="picker-second"></div>
+                </div>
+                <div class="grid grid-cols-2 border-t border-zinc-100 pt-4 text-center text-sm">
+                    <button onclick="closeDurationModal()" class="text-zinc-500 font-medium py-2">取消</button>
+                    <button onclick="confirmDuration()" class="text-emerald-600 font-bold py-2 border-l border-zinc-100">确定</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Count/Distance Input Modal -->
+        <div id="count-modal" class="absolute inset-0 bg-black/40 z-[70] custom-modal-mask flex items-end justify-center">
+            <div class="bg-white w-full rounded-t-[32px] p-6 custom-modal-container">
+                <div id="count-modal-title" class="text-center font-bold text-lg text-zinc-800 mb-4">输入距离</div>
+                <div class="flex bg-zinc-100 rounded-2xl p-3 items-center mb-6">
+                    <input type="number" id="count-input" step="0.1" class="bg-transparent text-center text-2xl font-black text-zinc-800 w-full focus:outline-none">
+                    <span id="count-modal-unit" class="text-zinc-400 font-bold pr-2">km</span>
+                </div>
+                <div class="grid grid-cols-2 border-t border-zinc-100 pt-4 text-center text-sm">
+                    <button onclick="closeCountModal()" class="text-zinc-500 font-medium py-2">取消</button>
+                    <button onclick="confirmCount()" class="text-emerald-600 font-bold py-2 border-l border-zinc-100">确定</button>
                 </div>
             </div>
         </div>
