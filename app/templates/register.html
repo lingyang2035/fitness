@@ -5,8 +5,8 @@
     <div class="w-full max-w-sm">
         <div class="text-center mb-8">
             <div class="text-5xl mb-4">👋</div>
-            <h1 class="text-2xl font-black text-slate-800 mb-2">加入{{ app_name }}</h1>
-            <p class="text-slate-400 text-sm" id="token-status">
+            <h1 class="text-2xl font-black text-zinc-800 mb-2">加入{{ app_name }}</h1>
+            <p class="text-zinc-400 text-sm" id="token-status">
                 {% if token %}
                 正在验证邀请链接...
                 {% else %}
@@ -15,10 +15,10 @@
             </p>
         </div>
 
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-zinc-100">
             {% if not token %}
             <div class="text-center py-4">
-                <p class="text-slate-500 text-sm mb-4">请让家人通过应用内的「邀请成员」功能发送邀请链接给你</p>
+                <p class="text-zinc-500 text-sm mb-4">请让家人通过应用内的「邀请成员」功能发送邀请链接给你</p>
                 <a href="{{ app_prefix }}/login" class="text-emerald-600 font-semibold text-sm">返回登录</a>
             </div>
             {% else %}
@@ -26,24 +26,24 @@
                 <input type="hidden" id="token" value="{{ token }}">
                 <div class="space-y-4">
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">用户名</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">用户名</label>
                         <input type="text" id="username" required minlength="2" placeholder="登录用"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">显示名称</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">显示名称</label>
                         <input type="text" id="display_name" required placeholder="如：爸爸、妈妈、儿子"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">密码</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">密码</label>
                         <input type="password" id="password" required minlength="4" placeholder="至少4位"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">确认密码</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">确认密码</label>
                         <input type="password" id="password_confirm" required minlength="4" placeholder="再次输入密码"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                 </div>
 

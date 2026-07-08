@@ -2,21 +2,21 @@
 {% block title %}{{ app_name }}{% endblock %}
 {% block body %}
 <div class="min-h-screen flex items-center justify-center p-0 sm:p-4">
-    <div class="w-full sm:max-w-[400px] h-screen sm:h-[780px] bg-slate-50 sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col sm:border-[8px] sm:border-white sm:ring-1 sm:ring-slate-200 relative">
+    <div class="w-full sm:max-w-[400px] h-screen sm:h-[780px] bg-zinc-50 sm:rounded-[40px] shadow-2xl overflow-hidden flex flex-col sm:border-[8px] sm:border-white sm:ring-1 sm:ring-zinc-200 relative">
 
         <!-- Header -->
         <div class="px-5 pt-5 pb-2 flex-shrink-0">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-black text-slate-800 tracking-tight">{{ app_title }}</h1>
+                <h1 class="text-xl font-black text-zinc-800 tracking-tight">{{ app_title }}</h1>
                 <div class="flex items-center gap-1">
-                    <button onclick="shareApp()" class="p-2 hover:bg-white rounded-xl text-slate-400 transition-colors" title="分享">
+                    <button onclick="shareApp()" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors" title="分享">
                         <i data-lucide="share-2" class="w-4 h-4"></i>
                     </button>
                     <button onclick="window.location.href='{{ app_prefix }}/admin'" id="admin-btn"
-                            class="hidden p-2 hover:bg-white rounded-xl text-slate-400 transition-colors" title="管理">
+                            class="hidden p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors" title="管理">
                         <i data-lucide="settings" class="w-4 h-4"></i>
                     </button>
-                    <button onclick="handleLogout()" class="p-2 hover:bg-white rounded-xl text-slate-400 transition-colors" title="退出">
+                    <button onclick="handleLogout()" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors" title="退出">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -24,36 +24,36 @@
 
             <!-- User badge -->
             <div class="flex items-center justify-between mb-4">
-                <span id="user-badge" class="text-sm font-bold text-slate-700"></span>
+                <span id="user-badge" class="text-sm font-bold text-zinc-700"></span>
                 <button onclick="showInviteModal()" id="invite-btn"
-                        class="px-3 py-1.5 bg-slate-100 text-slate-600 rounded-full text-xs font-bold hover:bg-slate-200 transition-colors">
+                        class="px-3 py-1.5 bg-zinc-100 text-zinc-600 rounded-full text-xs font-bold hover:bg-zinc-200 transition-colors">
                     + 邀请家人
                 </button>
             </div>
 
             <!-- View mode tabs -->
-            <div class="bg-white p-1 rounded-2xl flex mb-3 shadow-sm border border-slate-100">
+            <div class="bg-white p-1 rounded-2xl flex mb-3 shadow-sm border border-zinc-100">
                 <button onclick="setViewMode('all')" id="btn-all"
-                        class="flex-1 py-2.5 rounded-xl text-xs font-bold shadow-sm bg-slate-900 text-white transition-all">动态</button>
+                        class="flex-1 py-2.5 rounded-xl text-xs font-bold shadow-sm bg-zinc-900 text-white transition-all">动态</button>
                 <button onclick="setViewMode('me')" id="btn-me"
-                        class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition-all">我的</button>
+                        class="flex-1 py-2.5 rounded-xl text-xs font-bold text-zinc-400 transition-all">我的</button>
                 <button onclick="setViewMode('stats')" id="btn-stats"
-                        class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 transition-all">统计</button>
+                        class="flex-1 py-2.5 rounded-xl text-xs font-bold text-zinc-400 transition-all">统计</button>
             </div>
 
             <!-- Week navigation -->
             <div class="flex justify-between items-center mb-1">
-                <button onclick="changeWeek(-7)" class="p-2 hover:bg-white rounded-xl text-slate-400 transition-colors">
+                <button onclick="changeWeek(-7)" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors">
                     <i data-lucide="chevron-left" class="w-4 h-4"></i>
                 </button>
                 <div class="flex items-center gap-2">
-                    <span class="text-sm font-bold text-slate-700" id="week-display">本周</span>
+                    <span class="text-sm font-bold text-zinc-700" id="week-display">本周</span>
                     <button onclick="goToCurrentWeek()" id="btn-current-week"
-                            class="hidden px-3 py-1 text-xs font-bold bg-slate-100 text-slate-600 rounded-full hover:bg-slate-200 transition-all">
+                            class="hidden px-3 py-1 text-xs font-bold bg-zinc-100 text-zinc-600 rounded-full hover:bg-zinc-200 transition-all">
                         本周
                     </button>
                 </div>
-                <button onclick="changeWeek(7)" class="p-2 hover:bg-white rounded-xl text-slate-400 transition-colors">
+                <button onclick="changeWeek(7)" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors">
                     <i data-lucide="chevron-right" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -63,35 +63,35 @@
         <div class="px-5 py-3 grid grid-cols-2 gap-3 flex-shrink-0" id="summary-cards">
             <div class="bg-white p-4 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="clock" class="w-3.5 h-3.5 text-slate-300"></i>
-                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总时长</span>
+                    <i data-lucide="clock" class="w-3.5 h-3.5 text-zinc-300"></i>
+                    <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">总时长</span>
                 </div>
-                <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-time">0<span class="text-sm font-medium text-slate-400 ml-0.5">min</span></div>
+                <div class="text-[26px] font-black text-zinc-800 leading-none" id="stat-time">0<span class="text-sm font-medium text-zinc-400 ml-0.5">min</span></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm">
                 <div class="flex items-center gap-1.5 mb-1.5">
-                    <i data-lucide="route" class="w-3.5 h-3.5 text-slate-300"></i>
-                    <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wide">总里程</span>
+                    <i data-lucide="route" class="w-3.5 h-3.5 text-zinc-300"></i>
+                    <span class="text-[10px] font-medium text-zinc-400 uppercase tracking-wide">总里程</span>
                 </div>
-                <div class="text-[26px] font-black text-slate-800 leading-none" id="stat-dist">0<span class="text-sm font-medium text-slate-400 ml-0.5">km</span></div>
+                <div class="text-[26px] font-black text-zinc-800 leading-none" id="stat-dist">0<span class="text-sm font-medium text-zinc-400 ml-0.5">km</span></div>
             </div>
         </div>
 
         <!-- Record List -->
         <div class="flex-1 overflow-y-auto px-5 py-3" id="record-list">
-            <div class="text-center text-slate-300 py-12">
-                <div class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i data-lucide="activity" class="w-8 h-8 text-slate-300"></i>
+            <div class="text-center text-zinc-300 py-12">
+                <div class="w-16 h-16 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="activity" class="w-8 h-8 text-zinc-300"></i>
                 </div>
-                <p class="text-sm text-slate-400 font-medium">暂无记录</p>
-                <p class="text-xs text-slate-300 mt-1">开始运动吧！</p>
+                <p class="text-sm text-zinc-400 font-medium">暂无记录</p>
+                <p class="text-xs text-zinc-300 mt-1">开始运动吧！</p>
             </div>
         </div>
 
         <!-- Add Button -->
         <div class="px-5 pb-5 pt-2 flex-shrink-0">
             <button onclick="toggleModal(true)"
-                    class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg shadow-slate-300 flex justify-center items-center gap-2 hover:bg-slate-800 active:scale-[0.98] transition-all">
+                    class="w-full bg-zinc-900 text-white py-4 rounded-2xl font-bold shadow-lg shadow-zinc-300 flex justify-center items-center gap-2 hover:bg-zinc-800 active:scale-[0.98] transition-all">
                 <div class="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center">
                     <i data-lucide="plus" class="w-3.5 h-3.5"></i>
                 </div>
@@ -103,26 +103,26 @@
         <div id="modal" class="absolute inset-0 bg-black/40 opacity-0 pointer-events-none z-50 flex items-end justify-center transition-opacity duration-300">
             <div id="modal-content" class="bg-white w-full rounded-t-[32px] p-6 translate-y-full transition-transform duration-300">
                 <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-slate-800">记录新运动</h2>
-                    <button onclick="toggleModal(false)" class="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                        <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+                    <h2 class="text-lg font-bold text-zinc-800">记录新运动</h2>
+                    <button onclick="toggleModal(false)" class="p-1.5 hover:bg-zinc-100 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5 text-zinc-400"></i>
                     </button>
                 </div>
                 <div class="space-y-5">
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-2.5 block tracking-wide">运动类型</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-2.5 block tracking-wide">运动类型</label>
                         <div class="grid grid-cols-3 gap-2" id="type-selector"></div>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="text-xs text-slate-400 font-semibold uppercase tracking-wide">时长 (min)</label>
+                            <label class="text-xs text-zinc-400 font-semibold uppercase tracking-wide">时长 (min)</label>
                             <input type="number" id="input-dur" value="0" min="0" max="480"
-                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
+                                   class="w-full mt-2 p-3 bg-zinc-50 rounded-xl font-bold text-sm border border-zinc-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
                         </div>
                         <div>
-                            <label id="dist-label" class="text-xs text-slate-400 font-semibold uppercase tracking-wide">距离 (km)</label>
+                            <label id="dist-label" class="text-xs text-zinc-400 font-semibold uppercase tracking-wide">距离 (km)</label>
                             <input type="number" id="input-dist" value="0" step="0.1" min="0"
-                                   class="w-full mt-2 p-3 bg-slate-50 rounded-xl font-bold text-sm border border-slate-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
+                                   class="w-full mt-2 p-3 bg-zinc-50 rounded-xl font-bold text-sm border border-zinc-100 focus:border-emerald-300 focus:ring-2 focus:ring-emerald-100 transition-all">
                         </div>
                     </div>
                     <button onclick="saveRecord()"
@@ -137,16 +137,16 @@
         <div id="invite-modal" class="absolute inset-0 bg-black/40 opacity-0 pointer-events-none z-50 flex items-end justify-center transition-opacity duration-300">
             <div id="invite-modal-content" class="bg-white w-full rounded-t-[32px] p-6 translate-y-full transition-transform duration-300">
                 <div class="flex justify-between items-center mb-5">
-                    <h2 class="text-lg font-bold text-slate-800">邀请家人</h2>
-                    <button onclick="closeInviteModal()" class="p-1.5 hover:bg-slate-100 rounded-full transition-colors">
-                        <i data-lucide="x" class="w-5 h-5 text-slate-400"></i>
+                    <h2 class="text-lg font-bold text-zinc-800">邀请家人</h2>
+                    <button onclick="closeInviteModal()" class="p-1.5 hover:bg-zinc-100 rounded-full transition-colors">
+                        <i data-lucide="x" class="w-5 h-5 text-zinc-400"></i>
                     </button>
                 </div>
                 <div class="space-y-4">
-                    <p class="text-sm text-slate-500">生成邀请链接，分享给家人后他们可以注册加入。</p>
-                    <div id="invite-url-box" class="hidden bg-slate-50 p-4 rounded-xl">
-                        <p class="text-xs text-slate-400 mb-1">邀请链接</p>
-                        <p class="text-sm font-mono text-slate-700 break-all" id="invite-url-text"></p>
+                    <p class="text-sm text-zinc-500">生成邀请链接，分享给家人后他们可以注册加入。</p>
+                    <div id="invite-url-box" class="hidden bg-zinc-50 p-4 rounded-xl">
+                        <p class="text-xs text-zinc-400 mb-1">邀请链接</p>
+                        <p class="text-sm font-mono text-zinc-700 break-all" id="invite-url-text"></p>
                         <button onclick="copyInviteUrl()"
                                 class="mt-3 w-full bg-emerald-600 text-white py-2.5 rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors">
                             复制链接

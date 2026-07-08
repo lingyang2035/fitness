@@ -5,32 +5,32 @@
     <div class="w-full max-w-sm">
         <div class="text-center mb-8">
             <div class="text-5xl mb-4">{{ app_emoji }}</div>
-            <h1 class="text-2xl font-black text-slate-800 mb-2">欢迎加入{{ app_name }}</h1>
-            <p class="text-slate-400 text-sm">首次使用，请创建管理员账号</p>
+            <h1 class="text-2xl font-black text-zinc-800 mb-2">欢迎加入{{ app_name }}</h1>
+            <p class="text-zinc-400 text-sm">首次使用，请创建管理员账号</p>
         </div>
 
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
+        <div class="bg-white rounded-3xl p-6 shadow-sm border border-zinc-100">
             <form id="setup-form" onsubmit="handleSetup(event)">
                 <div class="space-y-4">
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">用户名</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">用户名</label>
                         <input type="text" id="username" required minlength="2" placeholder="登录用"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">显示名称</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">显示名称</label>
                         <input type="text" id="display_name" required placeholder="如：爸爸、妈妈"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">密码</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">密码</label>
                         <input type="password" id="password" required minlength="4" placeholder="至少4位"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                     <div>
-                        <label class="text-xs text-slate-400 font-semibold uppercase mb-1 block">确认密码</label>
+                        <label class="text-xs text-zinc-400 font-semibold uppercase mb-1 block">确认密码</label>
                         <input type="password" id="password_confirm" required minlength="4" placeholder="再次输入密码"
-                               class="w-full p-3 bg-slate-50 rounded-xl text-sm font-medium">
+                               class="w-full p-3 bg-zinc-50 rounded-xl text-sm font-medium">
                     </div>
                 </div>
 

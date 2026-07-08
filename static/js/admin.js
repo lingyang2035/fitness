@@ -23,7 +23,7 @@ function switchTab(tab) {
         if (t === tab) {
             btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold bg-emerald-600 text-white transition-all';
         } else {
-            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold text-slate-500 transition-all';
+            btn.className = 'flex-1 py-2 rounded-xl text-xs font-semibold text-zinc-500 transition-all';
         }
     });
     loadTabContent();
@@ -31,7 +31,7 @@ function switchTab(tab) {
 
 async function loadTabContent() {
     const area = document.getElementById('content-area');
-    area.innerHTML = '<p class="text-center text-slate-400 py-8">加载中...</p>';
+    area.innerHTML = '<p class="text-center text-zinc-400 py-8">加载中...</p>';
 
     try {
         switch (currentTab) {
@@ -70,9 +70,9 @@ async function renderDashboard(area) {
             </div>
         </div>
         <div class="space-y-2">
-            <button onclick="switchTab('users')" class="w-full text-left p-3 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors">👥 管理用户 →</button>
-            <button onclick="switchTab('logs')" class="w-full text-left p-3 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors">📋 查看日志 →</button>
-            <button onclick="switchTab('invites')" class="w-full text-left p-3 bg-slate-50 rounded-xl text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors">🔗 管理邀请 →</button>
+            <button onclick="switchTab('users')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">👥 管理用户 →</button>
+            <button onclick="switchTab('logs')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">📋 查看日志 →</button>
+            <button onclick="switchTab('invites')" class="w-full text-left p-3 bg-zinc-50 rounded-xl text-sm font-medium text-zinc-700 hover:bg-zinc-100 transition-colors">🔗 管理邀请 →</button>
         </div>
     `;
 }
@@ -84,35 +84,35 @@ async function renderUsers(area) {
 
     area.innerHTML = `
         <div class="flex justify-between items-center mb-4">
-            <h3 class="font-bold text-slate-800">用户列表 (${users.length})</h3>
+            <h3 class="font-bold text-zinc-800">用户列表 (${users.length})</h3>
             <button onclick="openUserModal()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">+ 添加用户</button>
         </div>
         <div class="space-y-2">
             ${users.map(u => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${u.role === 'admin' ? 'bg-amber-100 text-amber-600' : 'bg-emerald-100 text-emerald-600'}">
                             ${escapeHtml(u.display_name[0])}
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-slate-800">
+                            <div class="text-sm font-bold text-zinc-800">
                                 ${escapeHtml(u.display_name)}
                                 ${u.role === 'admin' ? '<span class="text-[10px] bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full ml-1">管理</span>' : ''}
                                 ${!u.is_active ? '<span class="text-[10px] bg-red-100 text-red-500 px-1.5 py-0.5 rounded-full ml-1">已停用</span>' : ''}
                             </div>
-                            <div class="text-xs text-slate-400">@${escapeHtml(u.username)} · ${u.last_login ? '最近登录: ' + u.last_login.slice(0, 10) : '从未登录'}</div>
+                            <div class="text-xs text-zinc-400">@${escapeHtml(u.username)} · ${u.last_login ? '最近登录: ' + u.last_login.slice(0, 10) : '从未登录'}</div>
                         </div>
                     </div>
                     <div class="flex gap-1">
-                        <button onclick="openUserModal(${u.id})" class="p-2 text-slate-400 hover:text-emerald-600">
+                        <button onclick="openUserModal(${u.id})" class="p-2 text-zinc-400 hover:text-emerald-600">
                             <i data-lucide="edit-2" class="w-4 h-4"></i>
                         </button>
                         ${!u.is_active ? `
-                            <button onclick="toggleUserActive(${u.id}, 1)" class="p-2 text-slate-400 hover:text-green-600">
+                            <button onclick="toggleUserActive(${u.id}, 1)" class="p-2 text-zinc-400 hover:text-green-600">
                                 <i data-lucide="user-check" class="w-4 h-4"></i>
                             </button>
                         ` : `
-                            <button onclick="toggleUserActive(${u.id}, 0)" class="p-2 text-slate-400 hover:text-red-400">
+                            <button onclick="toggleUserActive(${u.id}, 0)" class="p-2 text-zinc-400 hover:text-red-400">
                                 <i data-lucide="user-x" class="w-4 h-4"></i>
                             </button>
                         `}
@@ -203,20 +203,20 @@ async function renderRecords(area) {
     const records = res.records || [];
 
     area.innerHTML = `
-        <h3 class="font-bold text-slate-800 mb-3">全部运动记录 (${records.length})</h3>
+        <h3 class="font-bold text-zinc-800 mb-3">全部运动记录 (${records.length})</h3>
         <div class="space-y-2 max-h-[500px] overflow-y-auto">
-            ${records.length === 0 ? '<p class="text-center text-slate-400 py-4 text-sm">暂无记录</p>' : records.map(r => `
-                <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+            ${records.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无记录</p>' : records.map(r => `
+                <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-emerald-100 text-emerald-600 rounded-lg flex items-center justify-center font-bold text-xs">
                             ${(r.user_display_name || '?')[0]}
                         </div>
                         <div>
-                            <div class="text-sm font-bold text-slate-800">${escapeHtml(r.exercise_type)} · ${r.duration_minutes}min</div>
-                            <div class="text-xs text-slate-400">${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(0, 16) : ''}</div>
+                            <div class="text-sm font-bold text-zinc-800">${escapeHtml(r.exercise_type)} · ${r.duration_minutes}min</div>
+                            <div class="text-xs text-zinc-400">${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(0, 16) : ''}</div>
                         </div>
                     </div>
-                    <button onclick="deleteAdminRecord(${r.id})" class="p-2 text-slate-300 hover:text-red-400">
+                    <button onclick="deleteAdminRecord(${r.id})" class="p-2 text-zinc-300 hover:text-red-400">
                         <i data-lucide="trash-2" class="w-4 h-4"></i>
                     </button>
                 </div>
@@ -245,16 +245,16 @@ async function renderLogs(area) {
 
     area.innerHTML = `
         <div class="flex justify-between items-center mb-3">
-            <h3 class="font-bold text-slate-800">访问日志 (${pag.total || 0})</h3>
+            <h3 class="font-bold text-zinc-800">访问日志 (${pag.total || 0})</h3>
         </div>
         <div class="space-y-1 max-h-[500px] overflow-y-auto mb-4">
-            ${logs.length === 0 ? '<p class="text-center text-slate-400 py-4 text-sm">暂无日志</p>' : logs.map(l => `
-                <div class="p-2 bg-slate-50 rounded-lg text-xs">
+            ${logs.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无日志</p>' : logs.map(l => `
+                <div class="p-2 bg-zinc-50 rounded-lg text-xs">
                     <div class="flex justify-between">
-                        <span class="font-medium text-slate-700">${l.action}</span>
-                        <span class="text-slate-400">${l.created_at ? l.created_at.slice(0, 19) : ''}</span>
+                        <span class="font-medium text-zinc-700">${l.action}</span>
+                        <span class="text-zinc-400">${l.created_at ? l.created_at.slice(0, 19) : ''}</span>
                     </div>
-                    <div class="text-slate-400 mt-0.5">
+                    <div class="text-zinc-400 mt-0.5">
                         ${l.user_display_name || '匿名'} · ${l.ip_address || '-'}
                     </div>
                 </div>
@@ -262,10 +262,10 @@ async function renderLogs(area) {
         </div>
         <div class="flex justify-between items-center">
             <button onclick="logsPage=Math.max(1,logsPage-1);loadTabContent()" ${logsPage <= 1 ? 'disabled' : ''}
-                    class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-medium disabled:opacity-30">上一页</button>
-            <span class="text-xs text-slate-400">${pag.page} / ${pag.total_pages || 1}</span>
+                    class="px-3 py-1.5 bg-zinc-100 rounded-lg text-xs font-medium disabled:opacity-30">上一页</button>
+            <span class="text-xs text-zinc-400">${pag.page} / ${pag.total_pages || 1}</span>
             <button onclick="logsPage++;loadTabContent()" ${logsPage >= pag.total_pages ? 'disabled' : ''}
-                    class="px-3 py-1.5 bg-slate-100 rounded-lg text-xs font-medium disabled:opacity-30">下一页</button>
+                    class="px-3 py-1.5 bg-zinc-100 rounded-lg text-xs font-medium disabled:opacity-30">下一页</button>
         </div>
     `;
 }
@@ -277,7 +277,7 @@ async function renderInvites(area) {
 
     area.innerHTML = `
         <div class="flex justify-between items-center mb-3">
-            <h3 class="font-bold text-slate-800">邀请令牌</h3>
+            <h3 class="font-bold text-zinc-800">邀请令牌</h3>
             <button onclick="generateAdminInvite()" class="bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-emerald-700 transition-colors">+ 生成新邀请</button>
         </div>
         <div id="admin-invite-url-box" class="hidden bg-emerald-50 p-4 rounded-xl mb-4">
@@ -286,14 +286,14 @@ async function renderInvites(area) {
             <button onclick="copyAdminInviteUrl()" class="mt-2 w-full bg-emerald-600 text-white py-2 rounded-xl font-bold text-xs hover:bg-emerald-700 transition-colors">复制链接</button>
         </div>
         <div class="space-y-2">
-            ${invites.length === 0 ? '<p class="text-center text-slate-400 py-4 text-sm">暂无邀请</p>' : invites.map(inv => {
+            ${invites.length === 0 ? '<p class="text-center text-zinc-400 py-4 text-sm">暂无邀请</p>' : invites.map(inv => {
                 const status = inv.is_used ? '已用' : (inv.expires_at && inv.expires_at < new Date().toISOString() ? '已过期' : '有效');
-                const color = status === '有效' ? 'text-green-600' : 'text-slate-400';
+                const color = status === '有效' ? 'text-green-600' : 'text-zinc-400';
                 return `
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl">
+                    <div class="flex items-center justify-between p-3 bg-zinc-50 rounded-xl">
                         <div>
-                            <div class="text-sm font-mono text-slate-700">${inv.token.slice(0, 12)}...</div>
-                            <div class="text-xs text-slate-400">创建者: ${inv.creator_name || 'N/A'} · <span class="${color}">${status}</span></div>
+                            <div class="text-sm font-mono text-zinc-700">${inv.token.slice(0, 12)}...</div>
+                            <div class="text-xs text-zinc-400">创建者: ${inv.creator_name || 'N/A'} · <span class="${color}">${status}</span></div>
                         </div>
                         ${!inv.is_used ? `<button onclick="revokeAdminInvite(${inv.id})" class="text-xs text-red-400 hover:text-red-600 font-medium">撤销</button>` : ''}
                     </div>
