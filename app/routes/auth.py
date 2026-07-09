@@ -7,8 +7,14 @@ from app.models.invites import verify_token, mark_token_used
 from app.auth import login_required
 from app.utils import log_action, safe_user_dict
 import time
+import re
 
 auth_bp = Blueprint('auth', __name__)
+
+
+def _is_valid_password(password):
+    """密码必须至少8位，且同时包含数字和字母"""
+    return bool(re.search(r'[a-zA-Z]', password) and re.search(r'[0-9]', password))
 
 # In-memory rate limiter for login (resets on restart)
 _login_attempts = {}  # {ip_or_username: [(timestamp, ...)]}
@@ -45,6 +51,8 @@ def setup():
         return jsonify({'error': '用户名至少2个字符'}), 400
     if len(password) < 8:
         return jsonify({'error': '密码至少8个字符'}), 400
+    if not _is_valid_password(password):
+        return jsonify({'error': '密码必须包含数字和字母'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -114,6 +122,8 @@ def register():
         return jsonify({'error': '用户名至少2个字符'}), 400
     if len(password) < 8:
         return jsonify({'error': '密码至少8个字符'}), 400
+    if not _is_valid_password(password):
+        return jsonify({'error': '密码必须包含数字和字母'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -173,6 +183,8 @@ def change_password():
 
     if len(new_password) < 8:
         return jsonify({'error': '新密码至少8个字符'}), 400
+    if not _is_valid_password(new_password):
+        return jsonify({'error': '密码必须包含数字和字母'}), 400
 
     user = get_user_by_id(session['user_id'])
     if not user:

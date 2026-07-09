@@ -1,24 +1,23 @@
 // --- Confirm Dialog ---
+let _confirmResolve = null;
 function showConfirm(msg) {
     return new Promise((resolve) => {
-        const overlay = document.getElementById('confirm-dialog');
+        _confirmResolve = resolve;
         document.getElementById('confirm-msg').innerText = msg;
-        const ok = document.getElementById('confirm-ok');
-        const cancel = document.getElementById('confirm-cancel');
-        const cleanup = () => {
-            overlay.classList.remove('active');
-            ok.removeEventListener('click', onOk);
-            cancel.removeEventListener('click', onCancel);
-        };
-        const onOk = () => { cleanup(); resolve(true); };
-        const onCancel = () => { cleanup(); resolve(false); };
-        ok.addEventListener('click', onOk);
-        cancel.addEventListener('click', onCancel);
-        overlay.classList.add('active');
+        document.getElementById('confirm-dialog').classList.add('active');
     });
+}
+function _confirmYes() {
+    document.getElementById('confirm-dialog').classList.remove('active');
+    if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+}
+function _confirmNo() {
+    document.getElementById('confirm-dialog').classList.remove('active');
+    if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
 }
 
 let currentTab = 'dashboard';
+let _currentUserId = null;
 
 window.onload = async function() {
     try {
@@ -27,6 +26,7 @@ window.onload = async function() {
             window.location.href = window.APP_PREFIX + '/app';
             return;
         }
+        _currentUserId = user.id;
         document.getElementById('user-info').textContent = `${user.avatar_emoji || ''} ${user.display_name}`;
     } catch (e) {
         window.location.href = window.APP_PREFIX + '/login';
@@ -98,9 +98,12 @@ async function renderDashboard(area) {
 }
 
 // --- Users ---
+let _userMap = {};
 async function renderUsers(area) {
     const res = await API.getAdminUsers();
     const users = res.users || [];
+    _userMap = {};
+    users.forEach(u => { _userMap[u.id] = u; });
 
     area.innerHTML = `
         <div class="flex justify-between items-center mb-4">
@@ -125,17 +128,11 @@ async function renderUsers(area) {
                     </div>
                     <div class="flex gap-1">
                         <button onclick="openUserModal(${u.id})" class="p-2 text-zinc-400 hover:text-indigo-600">
-                            <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            <i data-lucide="edit-2" class="w-4 h-4 pointer-events-none"></i>
                         </button>
-                        ${!u.is_active ? `
-                            <button onclick="toggleUserActive(${u.id}, 1)" class="p-2 text-zinc-400 hover:text-green-600">
-                                <i data-lucide="user-check" class="w-4 h-4"></i>
-                            </button>
-                        ` : `
-                            <button onclick="toggleUserActive(${u.id}, 0)" class="p-2 text-zinc-400 hover:text-red-400">
-                                <i data-lucide="user-x" class="w-4 h-4"></i>
-                            </button>
-                        `}
+                        <button onclick="${u.id !== _currentUserId ? `deleteUser(${u.id})` : `showToast('不能删除自己的账号')`}" class="p-2 ${u.id !== _currentUserId ? 'text-zinc-400 hover:text-red-400' : 'text-zinc-300 cursor-not-allowed'}">
+                            <i data-lucide="trash-2" class="w-4 h-4 pointer-events-none"></i>
+                        </button>
                     </div>
                 </div>
             `).join('')}
@@ -143,12 +140,13 @@ async function renderUsers(area) {
     `;
 }
 
-async function toggleUserActive(id, isActive) {
-    if (!(await showConfirm(isActive ? '确定重新激活此用户？' : '确定停用此用户？'))) return;
+async function deleteUser(id) {
+    const name = (_userMap[id] && _userMap[id].display_name) || `ID:${id}`;
+    if (!(await showConfirm(`确定删除用户「${name}」？\n此操作不可撤销，将同时删除该用户的所有运动记录。`))) return;
     try {
-        await API.updateUser(id, { is_active: isActive });
+        await API.deactivateUser(id);
         loadTabContent();
-        showToast(isActive ? '用户已激活' : '用户已停用', 'success');
+        showToast('用户已删除', 'success');
     } catch (e) {
         showToast(e.message);
     }
@@ -199,12 +197,18 @@ async function submitUserForm(e) {
     try {
         if (id) {
             const data = { display_name: displayName, role, is_active: isActive };
-            if (password) data.new_password = password;
+            if (password) {
+                if (password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                    showToast('密码至少8位，且必须包含数字和字母');
+                    return;
+                }
+                data.new_password = password;
+            }
             await API.updateUser(parseInt(id), data);
             showToast('用户已更新', 'success');
         } else {
-            if (!password || password.length < 4) {
-                showToast('密码至少4位');
+            if (!password || password.length < 8 || !/[a-zA-Z]/.test(password) || !/[0-9]/.test(password)) {
+                showToast('密码至少8位，且必须包含数字和字母');
                 return;
             }
             await API.createUser({ username, password, display_name: displayName, role });

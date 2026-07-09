@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from app.models.users import (
     get_all_users, get_all_users_including_inactive, get_user_by_id,
-    create_user, update_user, reset_user_password, user_count
+    create_user, update_user, delete_user, reset_user_password, user_count
 )
 from app.models.records import (
     get_all_records, delete_record as delete_record_model,
@@ -12,8 +12,14 @@ from app.models.invites import get_invite_tokens, invites_count
 from app.models.logs import get_logs, get_log_actions
 from app.auth import admin_required
 from app.utils import log_action, get_week_start, safe_user_dict
+import re
 
 admin_bp = Blueprint('admin', __name__)
+
+
+def _is_valid_password(password):
+    """密码必须同时包含数字和字母"""
+    return bool(re.search(r'[a-zA-Z]', password) and re.search(r'[0-9]', password))
 
 @admin_bp.route('/api/admin/dashboard', methods=['GET'])
 @admin_required
@@ -45,6 +51,8 @@ def add_user():
         return jsonify({'error': '用户名至少2个字符'}), 400
     if len(password) < 8:
         return jsonify({'error': '密码至少8个字符'}), 400
+    if not _is_valid_password(password):
+        return jsonify({'error': '密码必须包含数字和字母'}), 400
     if not display_name:
         return jsonify({'error': '请输入显示名称'}), 400
 
@@ -67,22 +75,33 @@ def edit_user(user_id):
     if not user:
         return jsonify({'error': '用户不存在'}), 404
 
-    if data.get('new_password') and len(data.get('new_password', '')) >= 8:
-        reset_user_password(user_id, data['new_password'])
+    if data.get('new_password'):
+        new_pw = data['new_password']
+        if len(new_pw) < 8:
+            return jsonify({'error': '密码至少8个字符'}), 400
+        if not _is_valid_password(new_pw):
+            return jsonify({'error': '密码必须包含数字和字母'}), 400
+        reset_user_password(user_id, new_pw)
 
     log_action('admin_edit_user', session['user_id'], {'target_user': user_id})
     return jsonify(safe_user_dict(user))
 
 @admin_bp.route('/api/admin/users/<int:user_id>', methods=['DELETE'])
 @admin_required
-def deactivate_user(user_id):
+def delete_user_route(user_id):
     if user_id == session['user_id']:
-        return jsonify({'error': '不能停用自己的账号'}), 400
-    user = update_user(user_id, is_active=0)
+        return jsonify({'error': '不能删除自己的账号'}), 400
+    user = get_user_by_id(user_id)
+    if not user:
+        # 可能是已停用用户，用不筛选 is_active 的查询
+        from app.db import get_db
+        db = get_db()
+        user = db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     if not user:
         return jsonify({'error': '用户不存在'}), 404
-    log_action('admin_deactivate_user', session['user_id'], {'target_user': user_id})
-    return jsonify({'message': '已停用'})
+    delete_user(user_id)
+    log_action('admin_delete_user', session['user_id'], {'target_user': user_id, 'target_name': user['display_name']})
+    return jsonify({'message': '已删除'})
 
 @admin_bp.route('/api/admin/records', methods=['GET'])
 @admin_required

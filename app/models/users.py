@@ -33,7 +33,7 @@ def create_user(username, password, display_name, role='member', avatar_emoji='�
 def update_user(user_id, **kwargs):
     db = get_db()
     allowed = {'display_name', 'avatar_emoji', 'is_active', 'role'}
-    updates = {k: v for k, v in kwargs.items() if k in allowed}
+    updates = {k: v for k, v in kwargs.items() if k in allowed and v is not None}
     if not updates:
         return None
     if 'is_active' in updates:
@@ -42,7 +42,18 @@ def update_user(user_id, **kwargs):
     values = list(updates.values()) + [user_id]
     db.execute(f"UPDATE users SET {set_clause} WHERE id = ?", values)
     db.commit()
-    return get_user_by_id(user_id)
+    return db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+
+def delete_user(user_id):
+    """彻底删除用户。invite_tokens 引用置 NULL，records 级联删除，logs 引用置 NULL。"""
+    db = get_db()
+    # 清理 invite_tokens 中的外键引用（无 CASCADE，需手动处理）
+    db.execute("UPDATE invite_tokens SET created_by = NULL WHERE created_by = ?", (user_id,))
+    db.execute("UPDATE invite_tokens SET used_by_user_id = NULL WHERE used_by_user_id = ?", (user_id,))
+    # 删除用户（records 通过 ON DELETE CASCADE 自动删，logs 通过 ON DELETE SET NULL 保留）
+    db.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    db.commit()
+    return True
 
 def reset_user_password(user_id, new_password):
     db = get_db()
