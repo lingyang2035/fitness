@@ -1,3 +1,23 @@
+// --- Confirm Dialog ---
+function showConfirm(msg) {
+    return new Promise((resolve) => {
+        const overlay = document.getElementById('confirm-dialog');
+        document.getElementById('confirm-msg').innerText = msg;
+        const ok = document.getElementById('confirm-ok');
+        const cancel = document.getElementById('confirm-cancel');
+        const cleanup = () => {
+            overlay.classList.remove('active');
+            ok.removeEventListener('click', onOk);
+            cancel.removeEventListener('click', onCancel);
+        };
+        const onOk = () => { cleanup(); resolve(true); };
+        const onCancel = () => { cleanup(); resolve(false); };
+        ok.addEventListener('click', onOk);
+        cancel.addEventListener('click', onCancel);
+        overlay.classList.add('active');
+    });
+}
+
 let currentTab = 'dashboard';
 
 window.onload = async function() {
@@ -124,7 +144,7 @@ async function renderUsers(area) {
 }
 
 async function toggleUserActive(id, isActive) {
-    if (!confirm(isActive ? '确定重新激活此用户？' : '确定停用此用户？')) return;
+    if (!(await showConfirm(isActive ? '确定重新激活此用户？' : '确定停用此用户？'))) return;
     try {
         await API.updateUser(id, { is_active: isActive });
         loadTabContent();
@@ -226,7 +246,7 @@ async function renderRecords(area) {
 }
 
 async function deleteAdminRecord(id) {
-    if (!confirm('确定删除此记录？')) return;
+    if (!(await showConfirm('确定删除此记录？'))) return;
     try {
         await API.deleteAdminRecord(id);
         loadTabContent();
@@ -333,7 +353,7 @@ function copyAdminInviteUrl() {
 }
 
 async function revokeAdminInvite(id) {
-    if (!confirm('确定撤销此邀请？')) return;
+    if (!(await showConfirm('确定撤销此邀请？'))) return;
     try {
         await API.revokeAdminInvite(id);
         loadTabContent();

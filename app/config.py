@@ -18,6 +18,7 @@ def _load_or_create_secret_key():
         os.makedirs(os.path.dirname(key_path), exist_ok=True)
         with open(key_path, 'w') as f:
             f.write(key)
+        os.chmod(key_path, 0o600)
         return key
 
 class Config:
@@ -25,7 +26,7 @@ class Config:
     DATABASE = os.environ.get('DATABASE_PATH', os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'fitness.db'))
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = 'Lax'
-    SESSION_COOKIE_SECURE = os.environ.get('SESSION_SECURE', '0') == '1'  # Must set to '1' in production behind HTTPS
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_SECURE', '0') == '1'  # Set to '1' when behind HTTPS reverse proxy
     PERMANENT_SESSION_LIFETIME = 7 * 24 * 60 * 60  # 7 days
     LOG_RETENTION_DAYS = 90
     MAX_LOGIN_ATTEMPTS = 5

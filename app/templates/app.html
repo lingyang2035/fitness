@@ -134,7 +134,7 @@
                             </div>
                         </div>
                         <!-- Count/distance → input modal -->
-                        <div onclick="openCountModal()" class="p-4 flex justify-between items-center active:bg-indigo-50 cursor-pointer transition-colors">
+                        <div id="count-row" onclick="openCountModal()" class="p-4 flex justify-between items-center active:bg-indigo-50 cursor-pointer transition-colors">
                             <span id="label-count" class="text-zinc-700 font-medium text-sm">距离 (km)</span>
                             <div class="flex items-center gap-1 text-zinc-400">
                                 <span id="val-count" class="text-zinc-800 font-bold text-sm">0 km</span>
@@ -219,6 +219,17 @@
                     </button>
                     <div id="invite-list" class="space-y-2"></div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Dialog -->
+    <div id="confirm-dialog" class="confirm-overlay">
+        <div class="confirm-box">
+            <p id="confirm-msg"></p>
+            <div class="confirm-btns">
+                <button class="btn-cancel" id="confirm-cancel">取消</button>
+                <button class="btn-danger" id="confirm-ok">确定</button>
             </div>
         </div>
     </div>

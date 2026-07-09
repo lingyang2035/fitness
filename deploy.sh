@@ -32,6 +32,7 @@ docker exec "$CONTAINER" bash -c "
   sleep 0.5
   cd $APP_DIR
   tar -xzf /tmp/fitness-deploy.tar.gz
+  export SESSION_SECURE=1
   nohup python3 -c \"
 from waitress import serve
 from app import create_app

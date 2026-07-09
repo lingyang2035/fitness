@@ -160,13 +160,18 @@ self.addEventListener('fetch', (event) => {{
     with app.app_context():
         init_db()
 
-    # Security headers (HSTS only when HTTPS is enforced)
+    # Security and caching headers
     @app.after_request
     def add_security_headers(response):
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['Referrer-Policy'] = 'same-origin'
         if app.config.get('SESSION_COOKIE_SECURE'):
             response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+        # Cache static assets aggressively (versioned by ?v= query param)
+        ct = response.content_type or ''
+        if ct.startswith(('text/css', 'application/javascript', 'image/')):
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
         return response
 
     return app

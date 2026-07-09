@@ -103,6 +103,7 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_records_user ON exercise_records(user_id);
         CREATE INDEX IF NOT EXISTS idx_records_type ON exercise_records(exercise_type);
         CREATE INDEX IF NOT EXISTS idx_records_recorded ON exercise_records(recorded_at);
+        CREATE INDEX IF NOT EXISTS idx_records_week_user ON exercise_records(week_start, user_id, recorded_at DESC);
         CREATE INDEX IF NOT EXISTS idx_logs_user ON access_logs(user_id);
         CREATE INDEX IF NOT EXISTS idx_logs_action ON access_logs(action);
         CREATE INDEX IF NOT EXISTS idx_logs_created ON access_logs(created_at);
@@ -115,11 +116,13 @@ def init_db():
     # Seed exercise types
     types = [
         ('跑步', 'km', 'footprints', 1),
-        ('壶铃', 'count', 'dumbbell', 2),
+        ('壶铃', 'none', 'dumbbell', 2),
         ('拉伸', 'count', 'stretch-horizontal', 3),
         ('跳绳', 'count', 'skip-forward', 4),
         ('游泳', 'km', 'waves', 5),
         ('引体向上', 'count', 'arrow-up-circle', 6),
+        ('吊单杠', 'count', 'arrow-up', 7),
+        ('靠墙站立', 'count', 'person-standing', 8),
     ]
     for name, unit, icon, sort_order in types:
         db.execute(
@@ -127,4 +130,8 @@ def init_db():
             (name, unit, icon, sort_order)
         )
 
+    # Migrate existing types: 壶铃 → time-only (unit='none')
+    db.execute("UPDATE exercise_types SET unit='none' WHERE name='壶铃' AND unit='count'")
+    # Migrate: 吊单杠/拉伸 → count-based (unit='count')
+    db.execute("UPDATE exercise_types SET unit='count' WHERE name IN ('吊单杠', '拉伸') AND unit='none'")
     db.commit()
