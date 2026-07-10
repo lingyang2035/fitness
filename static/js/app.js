@@ -38,10 +38,14 @@ const TYPE_COLORS = {
     '拉伸': { accent: '#30D158', light: '#EEFFF2' }, '瑜伽': { accent: '#30D158', light: '#EEFFF2' },
     '跳绳': { accent: '#FF6B35', light: '#FFF3EE' }, '球类': { accent: '#FF3750', light: '#FFEEED' },
     '吊单杠': { accent: '#30D158', light: '#EEFFF2' }, '靠墙站立': { accent: '#AF52DE', light: '#F8F0FF' },
+    '徒步': { accent: '#FF9F43', light: '#FFF5ED' }, '走路': { accent: '#30D158', light: '#EEFFF2' },
+    '爬山': { accent: '#8B5CF6', light: '#F5F0FF' },
+    '羽毛球': { accent: '#FF3750', light: '#FFEEED' }, '骑车': { accent: '#007AFF', light: '#EEF5FF' },
 };
 const TYPE_EMOJI = {
     '跑步':'🏃','游泳':'🏊','壶铃':'🏋️','引体向上':'💪','拉伸':'🧘','瑜伽':'🧘','跳绳':'🪢','球类':'⚽',
-    '吊单杠':'🤸','靠墙站立':'🧍',
+    '吊单杠':'🤸','靠墙站立':'🧍','徒步':'🥾','走路':'🚶','爬山':'⛰️',
+    '羽毛球':'🏸','骑车':'🚴',
 };
 const FALLBACK = [
     {accent:'#FF6B35',light:'#FFF3EE'},{accent:'#007AFF',light:'#EEF5FF'},{accent:'#AF52DE',light:'#F8F0FF'},
@@ -74,7 +78,13 @@ function isTimeOnlyType(typeName) {
 }
 function getUnitLabel(typeName, unitType) {
     if (typeName === '吊单杠' || typeName === '拉伸') return '组';
+    if (typeName === '爬山' || typeName === '游泳') return '米';
     return unitType === 'count' ? '个' : 'km';
+}
+function getQuantityLabel(typeName, isCount) {
+    if (typeName === '爬山') return '海拔';
+    if (typeName === '吊单杠' || typeName === '拉伸') return '组数';
+    return isCount ? '数量' : '距离';
 }
 
 function getMonday(d) {
@@ -130,8 +140,11 @@ window.onload = async function() {
         state.types = [
             {name: '跑步', unit: 'km'}, {name: '壶铃', unit: 'none'},
             {name: '拉伸', unit: 'count'}, {name: '跳绳', unit: 'count'},
-            {name: '游泳', unit: 'km'}, {name: '引体向上', unit: 'count'},
-            {name: '吊单杠', unit: 'count'}, {name: '靠墙站立', unit: 'count'}
+            {name: '游泳', unit: 'm'}, {name: '引体向上', unit: 'count'},
+            {name: '吊单杠', unit: 'count'}, {name: '靠墙站立', unit: 'count'},
+            {name: '徒步', unit: 'km'}, {name: '走路', unit: 'km'},
+            {name: '爬山', unit: 'm'},
+            {name: '羽毛球', unit: 'none'}, {name: '骑车', unit: 'km'},
         ];
         renderTypeGrid();
     }
@@ -182,7 +195,7 @@ function selectType(type) {
     } else {
         countRow.style.display = '';
         const unit = getUnitLabel(type, isCount ? 'count' : 'km');
-        document.getElementById('label-count').innerText = `${isCount ? '数量' : '距离'} (${unit})`;
+        document.getElementById('label-count').innerText = `${getQuantityLabel(type, isCount)} (${unit})`;
     }
 
     // Reset count value and update unit display
@@ -222,7 +235,7 @@ async function saveRecord() {
     const isTimeOnly = typeObj ? typeObj.unit === 'none' : isTimeOnlyType(state.selectedType);
     if (!isTimeOnly && quantity <= 0) {
         const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
-        showToast(isCount ? '请输入有效数量' : '请输入有效距离');
+        showToast(`请输入有效${getQuantityLabel(state.selectedType, isCount)}`);
         return;
     }
 
@@ -297,7 +310,7 @@ function renderRecords() {
     let totalDuration = 0, totalDist = 0;
     for (const r of display) {
         totalDuration += r.duration_minutes;
-        if (!isCountType(r.exercise_type) && !isTimeOnlyType(r.exercise_type)) totalDist += r.quantity;
+        if (!isCountType(r.exercise_type) && !isTimeOnlyType(r.exercise_type) && r.exercise_type !== '爬山') totalDist += r.exercise_type === '游泳' ? r.quantity / 1000 : r.quantity;
     }
 
     document.getElementById('stat-time').innerHTML = totalDuration + '<span class="text-sm font-normal text-zinc-900 ml-0.5">min</span>';
@@ -336,7 +349,7 @@ function renderRecords() {
                             <div class="min-w-0">
                                 <div class="text-sm font-bold text-zinc-800 truncate">${getTypeEmoji(r.exercise_type)} ${escapeHtml(r.exercise_type)}</div>
                                 <div class="text-xs text-zinc-400 truncate">
-                                    ${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(11, 16) : ''}
+                                    ${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(5, 10) + ' ' + r.recorded_at.slice(11, 16) : ''}
                                 </div>
                             </div>
                         </div>
@@ -409,7 +422,7 @@ function renderStats() {
             const tc = getTypeColor(type);
             const stat = isTimeOnly
                 ? `${data.duration}min · ${data.count}次`
-                : `${data.duration}min · ${data.quantity}${unit} · ${data.count}次`;
+                : `${data.duration}min · ${Number(data.quantity.toFixed(1))}${unit} · ${data.count}次`;
             return `
                 <div class="flex justify-between items-center text-xs py-1.5 px-3 -mx-3 rounded-lg hover:bg-zinc-50">
                     <span class="font-medium inline-flex items-center gap-1.5">
@@ -488,9 +501,9 @@ function toggleModal(show) {
             countRow.style.display = 'none';
         } else {
             countRow.style.display = '';
-            document.getElementById('label-count').innerText = isCount ? '数量 (个)' : '距离 (km)';
+            document.getElementById('label-count').innerText = `${getQuantityLabel(state.selectedType, isCount)} (${getUnitLabel(state.selectedType, isCount ? 'count' : 'km')})`;
         }
-        document.getElementById('val-count').innerText = `0 ${isCount ? '个' : 'km'}`;
+        document.getElementById('val-count').innerText = `0 ${getUnitLabel(state.selectedType, isCount ? 'count' : 'km')}`;
 
         renderTypeGrid();
     }
@@ -548,7 +561,7 @@ function openCountModal() {
     if (isTimeOnly) return;
     const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
     const unit = getUnitLabel(state.selectedType, isCount ? 'count' : 'km');
-    const title = (state.selectedType === '吊单杠' || state.selectedType === '拉伸') ? '输入组数' : (isCount ? '输入数量' : '输入距离');
+    const title = (state.selectedType === '吊单杠' || state.selectedType === '拉伸') ? '输入组数' : (state.selectedType === '爬山' ? '输入海拔' : (isCount ? '输入数量' : '输入距离'));
     document.getElementById('count-modal-title').innerText = title;
     document.getElementById('count-modal-unit').innerText = unit;
     document.getElementById('count-input').value = state.selectedCount;

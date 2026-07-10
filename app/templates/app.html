@@ -236,6 +236,6 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{{ app_prefix }}/static/js/api.js?v=1.1.0"></script>
-<script src="{{ app_prefix }}/static/js/app.js?v=1.1.0"></script>
+<script src="{{ app_prefix }}/static/js/api.js?v={{ build_ts }}"></script>
+<script src="{{ app_prefix }}/static/js/app.js?v={{ build_ts }}"></script>
 {% endblock %}

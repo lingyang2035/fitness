@@ -35,15 +35,28 @@ def create_app(config_class=Config):
     app.wsgi_app = PrefixMiddleware(app.wsgi_app)
 
     # --- Dynamic app_prefix for templates (empty for direct, /fitness via nginx) ---
+    import os
+    _static_dir = os.path.join(app.root_path, '..', 'static')
+    _build_ts = str(int(max(
+        os.path.getmtime(os.path.join(_static_dir, 'js', 'app.js')),
+        os.path.getmtime(os.path.join(_static_dir, 'js', 'api.js')),
+        os.path.getmtime(os.path.join(_static_dir, 'css', 'tailwind.css')),
+    )))
     @app.context_processor
     def inject_globals():
         prefix = request.headers.get('X-Forwarded-Prefix', '')
+        # Construct absolute og:image URL
+        scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+        host = request.headers.get('X-Forwarded-Host', request.host)
+        og_image = f'{scheme}://{host}{prefix}/static/og-image.png' if prefix else f'{scheme}://{host}/static/og-image.png'
         return {
             'app_prefix': prefix,
             'app_name': APP_NAME,
             'app_emoji': APP_EMOJI,
             'app_title': APP_TITLE,
             'app_tagline': APP_TAGLINE,
+            'build_ts': _build_ts,
+            'og_image': og_image,
         }
 
     # ---- PWA dynamic routes ----

@@ -119,10 +119,15 @@ def init_db():
         ('壶铃', 'none', 'dumbbell', 2),
         ('拉伸', 'count', 'stretch-horizontal', 3),
         ('跳绳', 'count', 'skip-forward', 4),
-        ('游泳', 'km', 'waves', 5),
+        ('游泳', 'm', 'waves', 5),
         ('引体向上', 'count', 'arrow-up-circle', 6),
         ('吊单杠', 'count', 'arrow-up', 7),
         ('靠墙站立', 'count', 'person-standing', 8),
+        ('徒步', 'km', 'mountain', 9),
+        ('走路', 'km', 'footprints', 10),
+        ('爬山', 'm', 'trending-up', 11),
+        ('羽毛球', 'none', 'target', 12),
+        ('骑车', 'km', 'bike', 13),
     ]
     for name, unit, icon, sort_order in types:
         db.execute(
