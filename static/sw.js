@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fitness-v1.1.0';
+const CACHE_NAME = 'fitness-v1.1.2';
 const STATIC_ASSETS = [
     '/static/css/tailwind.css',
     '/static/js/api.js',

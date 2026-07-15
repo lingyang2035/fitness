@@ -128,6 +128,8 @@ def init_db():
         ('爬山', 'm', 'trending-up', 11),
         ('羽毛球', 'none', 'target', 12),
         ('骑车', 'km', 'bike', 13),
+        ('跟炼', 'none', 'video', 14),
+        ('力量', 'count', 'dumbbell', 15),
     ]
     for name, unit, icon, sort_order in types:
         db.execute(

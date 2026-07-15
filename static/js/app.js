@@ -41,11 +41,12 @@ const TYPE_COLORS = {
     '徒步': { accent: '#FF9F43', light: '#FFF5ED' }, '走路': { accent: '#30D158', light: '#EEFFF2' },
     '爬山': { accent: '#8B5CF6', light: '#F5F0FF' },
     '羽毛球': { accent: '#FF3750', light: '#FFEEED' }, '骑车': { accent: '#007AFF', light: '#EEF5FF' },
+    '跟炼': { accent: '#FF3750', light: '#FFEEED' }, '力量': { accent: '#FF9F43', light: '#FFF5ED' },
 };
 const TYPE_EMOJI = {
     '跑步':'🏃','游泳':'🏊','壶铃':'🏋️','引体向上':'💪','拉伸':'🧘','瑜伽':'🧘','跳绳':'🪢','球类':'⚽',
     '吊单杠':'🤸','靠墙站立':'🧍','徒步':'🥾','走路':'🚶','爬山':'⛰️',
-    '羽毛球':'🏸','骑车':'🚴',
+    '羽毛球':'🏸','骑车':'🚴','跟炼':'📺','力量':'💪',
 };
 const FALLBACK = [
     {accent:'#FF6B35',light:'#FFF3EE'},{accent:'#007AFF',light:'#EEF5FF'},{accent:'#AF52DE',light:'#F8F0FF'},
@@ -77,13 +78,13 @@ function isTimeOnlyType(typeName) {
     return m[typeName] === 'none';
 }
 function getUnitLabel(typeName, unitType) {
-    if (typeName === '吊单杠' || typeName === '拉伸') return '组';
+    if (typeName === '吊单杠' || typeName === '拉伸' || typeName === '力量') return '组';
     if (typeName === '爬山' || typeName === '游泳') return '米';
     return unitType === 'count' ? '个' : 'km';
 }
 function getQuantityLabel(typeName, isCount) {
     if (typeName === '爬山') return '海拔';
-    if (typeName === '吊单杠' || typeName === '拉伸') return '组数';
+    if (typeName === '吊单杠' || typeName === '拉伸' || typeName === '力量') return '组数';
     return isCount ? '数量' : '距离';
 }
 
@@ -145,6 +146,7 @@ window.onload = async function() {
             {name: '徒步', unit: 'km'}, {name: '走路', unit: 'km'},
             {name: '爬山', unit: 'm'},
             {name: '羽毛球', unit: 'none'}, {name: '骑车', unit: 'km'},
+            {name: '跟炼', unit: 'none'}, {name: '力量', unit: 'count'},
         ];
         renderTypeGrid();
     }
@@ -561,7 +563,7 @@ function openCountModal() {
     if (isTimeOnly) return;
     const isCount = typeObj ? typeObj.unit === 'count' : isCountType(state.selectedType);
     const unit = getUnitLabel(state.selectedType, isCount ? 'count' : 'km');
-    const title = (state.selectedType === '吊单杠' || state.selectedType === '拉伸') ? '输入组数' : (state.selectedType === '爬山' ? '输入海拔' : (isCount ? '输入数量' : '输入距离'));
+    const title = (state.selectedType === '吊单杠' || state.selectedType === '拉伸' || state.selectedType === '力量') ? '输入组数' : (state.selectedType === '爬山' ? '输入海拔' : (isCount ? '输入数量' : '输入距离'));
     document.getElementById('count-modal-title').innerText = title;
     document.getElementById('count-modal-unit').innerText = unit;
     document.getElementById('count-input').value = state.selectedCount;
