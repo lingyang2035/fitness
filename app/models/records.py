@@ -1,6 +1,6 @@
 from app.db import get_db
 
-def get_records(week_start=None, user_id=None):
+def get_records(week_start=None, user_id=None, year_month=None):
     db = get_db()
     query = """
         SELECT r.*, u.display_name as user_display_name, u.avatar_emoji as user_avatar_emoji
@@ -9,7 +9,10 @@ def get_records(week_start=None, user_id=None):
         WHERE 1=1
     """
     params = []
-    if week_start:
+    if year_month:
+        query += " AND r.week_start LIKE ?"
+        params.append(year_month + '%')
+    elif week_start:
         query += " AND r.week_start = ?"
         params.append(week_start)
     if user_id:

@@ -13,19 +13,22 @@ records_bp = Blueprint('records', __name__)
 @records_bp.route('/api/records', methods=['GET'])
 @login_required
 def list_records():
-    week_start = request.args.get('week_start') or get_week_start()
+    week_start = request.args.get('week_start')
+    year_month = request.args.get('year_month')
+    if not week_start and not year_month:
+        week_start = get_week_start()
     mode = request.args.get('mode', 'all')
     user_id_param = request.args.get('user_id')
 
     if mode == 'me':
-        records = get_records(week_start=week_start, user_id=session['user_id'])
+        records = get_records(week_start=week_start, user_id=session['user_id'], year_month=year_month)
     elif user_id_param:
         try:
-            records = get_records(week_start=week_start, user_id=int(user_id_param))
+            records = get_records(week_start=week_start, user_id=int(user_id_param), year_month=year_month)
         except (ValueError, TypeError):
             return jsonify({'error': '无效的用户ID'}), 400
     else:
-        records = get_records(week_start=week_start)
+        records = get_records(week_start=week_start, year_month=year_month)
 
     # Get exercise types for unit mapping
     types = get_exercise_types()

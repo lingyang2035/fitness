@@ -4,11 +4,11 @@ from app.db import init_db, close_db
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 # ── 应用元数据：改这里全局生效 ──
-APP_NAME = "锻炼日记"
+APP_NAME = "FamFit日记"
 APP_EMOJI = "🏅"
 APP_TITLE = f"{APP_EMOJI} {APP_NAME}"
-APP_SHORT = "日记"
-APP_DESC = "锻炼日记 - 记录与统计"
+APP_SHORT = "FamFit"
+APP_DESC = "FamFit日记 — 和家人一起记录运动"
 APP_TAGLINE = "和家人一起记录运动，健康生活"
 
 
@@ -92,7 +92,7 @@ def create_app(config_class=Config):
     @app.route('/sw.js')
     def serve_sw():
         prefix = request.headers.get('X-Forwarded-Prefix', '')
-        sw_js = f'''const CACHE_NAME = 'fitness-v3';
+        sw_js = f'''const CACHE_NAME = 'fitness-{{{_build_ts}}}';
 const STATIC_ASSETS = [
     '{prefix}/static/js/api.js',
     '{prefix}/static/js/app.js',
@@ -121,6 +121,7 @@ self.addEventListener('activate', (event) => {{
 }});
 
 self.addEventListener('fetch', (event) => {{
+    // Never cache API requests
     if (event.request.url.includes('/api/')) {{
         return;
     }}
@@ -128,22 +129,29 @@ self.addEventListener('fetch', (event) => {{
     if (reqUrl.origin !== self.location.origin) {{
         return;
     }}
+    // Navigation (HTML pages): network-first, fallback to cache
+    if (event.request.mode === 'navigate') {{
+        event.respondWith(
+            fetch(event.request).then((response) => {{
+                const clone = response.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+                return response;
+            }}).catch(() => {{
+                return caches.match(event.request);
+            }})
+        );
+        return;
+    }}
+    // Static assets: cache-first, background update for next visit
     event.respondWith(
         caches.match(event.request).then((cached) => {{
             const fetched = fetch(event.request).then((response) => {{
-                if (response && response.status === 200 && response.type === 'basic') {{
+                if (response && response.status === 200) {{
                     const clone = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {{
-                        cache.put(event.request, clone);
-                    }});
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
                 }}
                 return response;
-            }}).catch(() => {{
-                if (event.request.mode === 'navigate') {{
-                    return caches.match('{prefix}/static/offline.html');
-                }}
-                return cached;
-            }});
+            }}).catch(() => cached);
             return cached || fetched;
         }})
     );

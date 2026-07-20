@@ -21,7 +21,9 @@ function showConfirm(msg) {
 // --- State ---
 const state = {
     viewMode: 'all',
+    period: 'week',
     weekStart: getMonday(new Date()),
+    monthStart: getMonthStart(new Date()),
     selectedType: '跑步',
     selectedDurationMin: 0,
     selectedCount: 0,
@@ -99,6 +101,24 @@ function getMonday(d) {
     return `${yyyy}-${mm}-${dd}`;
 }
 
+function getMonthStart(d) {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${yyyy}-${mm}`;
+}
+
+function formatMonth(monthStr) {
+    const [y, m] = monthStr.split('-');
+    const now = new Date();
+    const thisMonth = getMonthStart(now);
+    const prevD = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const prevMonth = getMonthStart(prevD);
+    const mLabel = parseInt(m) + '月';
+    if (monthStr === thisMonth) return `本月 (${mLabel})`;
+    if (monthStr === prevMonth) return `上月 (${mLabel})`;
+    return mLabel;
+}
+
 function formatWeekRange(mondayStr) {
     const monday = new Date(mondayStr + 'T00:00:00');
     const sunday = new Date(monday);
@@ -153,7 +173,6 @@ window.onload = async function() {
 
     // lucide.createIcons() already called by render() → no need to re-scan here
     await loadRecords();
-    updateWeekDisplay();
 };
 
 function updateUserBadge() {
@@ -212,7 +231,12 @@ function selectType(type) {
 // --- Data Loading ---
 async function loadRecords() {
     try {
-        const params = { week_start: state.weekStart };
+        const params = {};
+        if (state.period === 'week') {
+            params.week_start = state.weekStart;
+        } else {
+            params.year_month = state.monthStart;
+        }
         if (state.viewMode === 'me') {
             params.mode = 'me';
         }
@@ -274,31 +298,74 @@ function render() {
     } else {
         renderRecords();
     }
-    updateWeekDisplay();
+    updatePeriodDisplay();
     lucide.createIcons();
 }
 
-function updateWeekDisplay() {
-    const currentMonday = getMonday(new Date());
-    const weekDisplay = document.getElementById('week-display');
-    if (weekDisplay) {
-        weekDisplay.innerText = formatWeekRange(state.weekStart);
+function updatePeriodDisplay() {
+    const display = document.getElementById('period-display');
+    if (display) {
+        if (state.period === 'week') {
+            display.innerText = formatWeekRange(state.weekStart);
+        } else {
+            display.innerText = formatMonth(state.monthStart);
+        }
     }
-    const btn = document.getElementById('btn-current-week');
+    const btn = document.getElementById('btn-current-period');
     if (!btn) return;
-    if (state.weekStart !== currentMonday) {
+    let isCurrent = false;
+    if (state.period === 'week') {
+        isCurrent = state.weekStart === getMonday(new Date());
+        btn.innerText = '本周';
+    } else {
+        isCurrent = state.monthStart === getMonthStart(new Date());
+        btn.innerText = '本月';
+    }
+    if (!isCurrent) {
         btn.classList.remove('hidden');
     } else {
         btn.classList.add('hidden');
     }
 }
 
-function goToCurrentWeek() {
-    const currentMonday = getMonday(new Date());
-    if (state.weekStart !== currentMonday) {
-        state.weekStart = currentMonday;
-        loadRecords();
+function goToCurrentPeriod() {
+    if (state.period === 'week') {
+        const currentMonday = getMonday(new Date());
+        if (state.weekStart !== currentMonday) {
+            state.weekStart = currentMonday;
+            loadRecords();
+        }
+    } else {
+        const currentMonth = getMonthStart(new Date());
+        if (state.monthStart !== currentMonth) {
+            state.monthStart = currentMonth;
+            loadRecords();
+        }
     }
+}
+
+function togglePeriod() {
+    if (state.period === 'week') {
+        state.period = 'month';
+        state.monthStart = getMonthStart(new Date());
+    } else {
+        state.period = 'week';
+        state.weekStart = getMonday(new Date());
+    }
+    loadRecords();
+}
+
+function changePeriod(delta) {
+    if (state.period === 'week') {
+        const d = new Date(state.weekStart + 'T00:00:00');
+        d.setDate(d.getDate() + delta * 7);
+        state.weekStart = getMonday(d);
+    } else {
+        const [y, m] = state.monthStart.split('-').map(Number);
+        const d = new Date(y, m - 1 + delta, 1);
+        state.monthStart = getMonthStart(d);
+    }
+    loadRecords();
 }
 
 function renderRecords() {
@@ -376,85 +443,142 @@ function renderRecords() {
 function renderStats() {
     document.getElementById('summary-cards').classList.add('hidden');
 
-    const stats = {};
-    state.records.forEach(r => {
-        if (!stats[r.user_id]) {
-            stats[r.user_id] = {
-                user_id: r.user_id,
-                display_name: r.user_display_name,
-                total_duration: 0,
-                records: []
-            };
-        }
-        stats[r.user_id].total_duration += r.duration_minutes;
-        stats[r.user_id].records.push(r);
-    });
-
-    const sorted = Object.values(stats).sort((a, b) => b.total_duration - a.total_duration);
-
+    const unitMap = getUnitMap();
     const list = document.getElementById('record-list');
-    if (sorted.length === 0) {
+
+    if (state.records.length === 0) {
         list.innerHTML = `
             <div class="text-center py-12">
                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 shadow-sm">
                     <i data-lucide="bar-chart-3" class="w-8 h-8 text-zinc-300"></i>
                 </div>
-                <p class="text-sm text-zinc-400 font-medium">本周暂无数据</p>
+                <p class="text-sm text-zinc-400 font-medium">暂无统计数据</p>
             </div>`;
         return;
     }
 
-    const unitMap = getUnitMap();
+    // ── Aggregate ──
+    const totalDuration = state.records.reduce((s, r) => s + r.duration_minutes, 0);
+    const totalCount = state.records.length;
+    const activeUsers = new Set(state.records.map(r => r.user_id)).size;
+    const activeDays = new Set(state.records.map(r => r.recorded_at ? r.recorded_at.slice(0, 10) : '')).size;
 
-    list.innerHTML = `
-        <h3 class="text-sm font-bold text-zinc-400 mb-3 px-1">📊 成员运动统计</h3>
-    ` + sorted.map((s, idx) => {
-        const typeBreakdown = {};
-        s.records.forEach(r => {
-            if (!typeBreakdown[r.exercise_type]) typeBreakdown[r.exercise_type] = { count: 0, duration: 0, quantity: 0 };
-            typeBreakdown[r.exercise_type].count++;
-            typeBreakdown[r.exercise_type].duration += r.duration_minutes;
-            typeBreakdown[r.exercise_type].quantity += r.quantity;
-        });
+    // ── Per-user ──
+    const userStats = {};
+    state.records.forEach(r => {
+        if (!userStats[r.user_id]) {
+            userStats[r.user_id] = { display_name: r.user_display_name, total_duration: 0, records: [] };
+        }
+        userStats[r.user_id].total_duration += r.duration_minutes;
+        userStats[r.user_id].records.push(r);
+    });
+    const members = Object.values(userStats).sort((a, b) => b.total_duration - a.total_duration);
+    const maxUserDur = members[0]?.total_duration || 1;
 
-        const breakdownHtml = Object.entries(typeBreakdown).map(([type, data]) => {
-            const unitType = unitMap[type];
-            const isTimeOnly = unitType === 'none';
-            const unit = getUnitLabel(type, unitType);
-            const tc = getTypeColor(type);
-            const stat = isTimeOnly
-                ? `${data.duration}min · ${data.count}次`
-                : `${data.duration}min · ${Number(data.quantity.toFixed(1))}${unit} · ${data.count}次`;
-            return `
-                <div class="flex justify-between items-center text-xs py-1.5 px-3 -mx-3 rounded-lg hover:bg-zinc-50">
-                    <span class="font-medium inline-flex items-center gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background:${tc.accent}"></span>
-                        ${getTypeEmoji(type)} ${escapeHtml(type)}
-                    </span>
-                    <span class="text-indigo-400">${stat}</span>
-                </div>
-            `;
-        }).join('');
+    // ── Per-type ──
+    const typeStats = {};
+    state.records.forEach(r => {
+        if (!typeStats[r.exercise_type]) typeStats[r.exercise_type] = { duration: 0, count: 0, quantity: 0 };
+        typeStats[r.exercise_type].duration += r.duration_minutes;
+        typeStats[r.exercise_type].count++;
+        typeStats[r.exercise_type].quantity += r.quantity;
+    });
+    const typeEntries = Object.entries(typeStats).sort((a, b) => b[1].duration - a[1].duration);
+    const maxTypeDur = typeEntries[0]?.[1]?.duration || 1;
 
-        return `
-            <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-zinc-50 mb-3">
-                <div class="flex items-center gap-4 p-5 pb-3">
-                    <div class="w-11 h-11 rounded-full flex items-center justify-center font-bold flex-shrink-0 bg-indigo-50 text-zinc-400">
-                        ${escapeHtml(s.display_name[0])}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="font-bold text-zinc-800 text-sm">${escapeHtml(s.display_name)}</div>
-                        <div class="text-xs text-zinc-400">${s.records.length} 次记录</div>
-                    </div>
-                    <div class="text-right flex-shrink-0">
-                        <div class="text-xs text-zinc-400">总时长</div>
-                        <div class="font-bold text-lg text-zinc-800">${s.total_duration} <span class="text-xs text-zinc-400 font-normal">min</span></div>
-                    </div>
-                </div>
-                ${breakdownHtml ? `<div class="px-5 pb-4 space-y-0.5">${breakdownHtml}</div>` : ''}
+    // ── Daily bars ──
+    const days = ['一', '二', '三', '四', '五', '六', '日'];
+    const dailyMinutes = new Array(7).fill(0);
+    state.records.forEach(r => {
+        if (r.recorded_at) {
+            const d = new Date(r.recorded_at.slice(0, 10) + 'T00:00:00');
+            const idx = (d.getDay() + 6) % 7; // Mon=0, Sun=6
+            dailyMinutes[idx] += r.duration_minutes;
+        }
+    });
+    const maxDayMin = Math.max(...dailyMinutes, 1);
+
+    let html = '';
+
+    // ── 1. Aggregate Cards ──
+    html += `
+        <div class="grid grid-cols-4 gap-2 mb-4">
+            <div class="bg-white rounded-xl py-2.5 px-1 text-center shadow-sm border border-zinc-50">
+                <div class="text-base font-black text-zinc-800 leading-tight">${totalDuration}</div>
+                <div class="text-[9px] text-zinc-400 leading-tight">min</div>
             </div>
-        `;
-    }).join('');
+            <div class="bg-white rounded-xl py-2.5 px-1 text-center shadow-sm border border-zinc-50">
+                <div class="text-base font-black text-zinc-800 leading-tight">${totalCount}</div>
+                <div class="text-[9px] text-zinc-400 leading-tight">次</div>
+            </div>
+            <div class="bg-white rounded-xl py-2.5 px-1 text-center shadow-sm border border-zinc-50">
+                <div class="text-base font-black text-zinc-800 leading-tight">${activeDays}</div>
+                <div class="text-[9px] text-zinc-400 leading-tight">天活跃</div>
+            </div>
+            <div class="bg-white rounded-xl py-2.5 px-1 text-center shadow-sm border border-zinc-50">
+                <div class="text-base font-black text-zinc-800 leading-tight">${activeUsers}</div>
+                <div class="text-[9px] text-zinc-400 leading-tight">人参与</div>
+            </div>
+        </div>`;
+
+    // ── 2. Daily Bar Chart ──
+    html += `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
+            <div class="text-xs font-bold text-zinc-500 mb-3">每日运动时长</div>
+            <div class="flex items-end justify-between gap-1" style="height:80px">
+                ${days.map((day, i) => {
+                    const h = Math.max(dailyMinutes[i] ? (dailyMinutes[i] / maxDayMin) * 72 : 2, 2);
+                    return `
+                        <div class="flex flex-col items-center gap-1 flex-1">
+                            <span class="text-[10px] font-bold text-zinc-400">${dailyMinutes[i] || ''}</span>
+                            <div class="w-full rounded-t-md" style="height:${h}px;background:${dailyMinutes[i] ? '#6366f1' : '#e4e4e7'}"></div>
+                            <span class="text-[10px] text-zinc-400">${day}</span>
+                        </div>`;
+                }).join('')}
+            </div>
+        </div>`;
+
+    // ── 3. Type Distribution ──
+    html += `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
+            <div class="text-xs font-bold text-zinc-500 mb-3">运动分布</div>
+            ${typeEntries.map(([type, data]) => {
+                const tc = getTypeColor(type);
+                const pct = Math.round(data.duration / maxTypeDur * 100);
+                const unitType = unitMap[type];
+                const isCount = unitType === 'count';
+                const isTimeOnly = unitType === 'none';
+                const label = isTimeOnly ? `${data.duration}min` : `${data.duration}min · ${Number(data.quantity.toFixed(1))}${getUnitLabel(type, unitType)}`;
+                return `
+                    <div class="flex items-center gap-2 mb-2 last:mb-0">
+                        <span class="text-sm w-6 text-center">${getTypeEmoji(type)}</span>
+                        <div class="flex-1 h-5 bg-zinc-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all" style="width:${pct}%;background:${tc.accent}"></div>
+                        </div>
+                        <span class="text-[11px] font-bold text-zinc-500 w-24 text-right">${label}</span>
+                    </div>`;
+            }).join('')}
+        </div>`;
+
+    // ── 4. Member Leaderboard ──
+    html += `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
+            <div class="text-xs font-bold text-zinc-500 mb-3">👑 成员排行</div>
+            ${members.map((m, i) => {
+                const pct = Math.round(m.total_duration / maxUserDur * 100);
+                return `
+                    <div class="flex items-center gap-2 mb-2 last:mb-0">
+                        <span class="text-xs font-bold w-5 text-zinc-400">${i + 1}</span>
+                        <span class="text-xs font-bold text-zinc-600 w-12 truncate">${escapeHtml(m.display_name)}</span>
+                        <div class="flex-1 h-4 bg-zinc-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full bg-indigo-500 transition-all" style="width:${pct}%"></div>
+                        </div>
+                        <span class="text-[11px] font-bold text-zinc-500 w-14 text-right">${m.total_duration}min</span>
+                    </div>`;
+            }).join('')}
+        </div>`;
+
+    list.innerHTML = html;
 }
 
 // --- View Mode ---
@@ -471,13 +595,6 @@ function setViewMode(mode) {
     loadRecords();
 }
 
-// --- Week Navigation ---
-function changeWeek(days) {
-    const d = new Date(state.weekStart + 'T00:00:00');
-    d.setDate(d.getDate() + days);
-    state.weekStart = getMonday(d);
-    loadRecords();
-}
 
 // --- Modal ---
 function toggleModal(show) {

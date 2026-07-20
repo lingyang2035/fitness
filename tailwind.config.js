@@ -24,6 +24,8 @@ module.exports = {
     'text-indigo-400',
     'text-zinc-400',
     'transition-all',
+    // Grid utilities used in JS-generated HTML
+    'grid-cols-4',
     'scale-95',
     'scale-100',
     'opacity-70',
