@@ -13,6 +13,9 @@
     <meta property="og:image" content="{{ og_image }}">
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
+    <script>
+    (function(){var ua=navigator.userAgent;var v=ua.match(/Version\/(\d+)\.(\d+)/);if(v&&/Safari/.test(ua)&&!/Chrome|CriOS/.test(ua)){var major=parseInt(v[1]),minor=parseInt(v[2]);if(major<14||(major===14&&minor===0)){document.documentElement.classList.add('safari14');}}})()
+    </script>
     <link rel="stylesheet" href="{{ app_prefix }}/static/css/tailwind.css">
     <script src="https://unpkg.com/lucide@0.472.0/dist/umd/lucide.min.js"></script>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%234F46E5'/%3E%3Ctext x='50' y='68' font-size='56' text-anchor='middle' fill='white' font-family='sans-serif'%3E🏅%3C/text%3E%3C/svg%3E">
@@ -27,6 +30,40 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
+
+        /* Flex gap fallback for Safari < 14.1 (e.g. iOS 14.4.2) */
+        /* gap on flex containers is ignored → use margin-based spacing */
+        .safari14 .flex.gap-1,
+        .safari14 .inline-flex.gap-1 { gap: 0; }
+        .safari14 .flex.gap-1 > * + *,
+        .safari14 .inline-flex.gap-1 > * + * { margin-left: 0.25rem; }
+        .safari14 .flex.gap-1\.5,
+        .safari14 .inline-flex.gap-1\.5 { gap: 0; }
+        .safari14 .flex.gap-1\.5 > * + *,
+        .safari14 .inline-flex.gap-1\.5 > * + * { margin-left: 0.375rem; }
+        .safari14 .flex.gap-2,
+        .safari14 .inline-flex.gap-2 { gap: 0; }
+        .safari14 .flex.gap-2 > * + *,
+        .safari14 .inline-flex.gap-2 > * + * { margin-left: 0.5rem; }
+        .safari14 .flex.gap-3,
+        .safari14 .inline-flex.gap-3 { gap: 0; }
+        .safari14 .flex.gap-3 > * + *,
+        .safari14 .inline-flex.gap-3 > * + * { margin-left: 0.75rem; }
+
+        /* Vertical flex direction: override horizontal margin, add vertical */
+        .safari14 .flex-col.gap-1 > * + *,
+        .safari14 .inline-flex.flex-col.gap-1 > * + * { margin-left: 0; margin-top: 0.25rem; }
+        .safari14 .flex-col.gap-1\.5 > * + *,
+        .safari14 .inline-flex.flex-col.gap-1\.5 > * + * { margin-left: 0; margin-top: 0.375rem; }
+        .safari14 .flex-col.gap-2 > * + *,
+        .safari14 .inline-flex.flex-col.gap-2 > * + * { margin-left: 0; margin-top: 0.5rem; }
+        .safari14 .flex-col.gap-3 > * + *,
+        .safari14 .inline-flex.flex-col.gap-3 > * + * { margin-left: 0; margin-top: 0.75rem; }
+
+        /* Confirm dialog: use flex gap */
+        .safari14 .confirm-box .confirm-btns { gap: 0; }
+        .safari14 .confirm-box .confirm-btns > * + * { margin-left: 0.75rem; }
+
         .toast {
             position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
             z-index: 9999; padding: 0.75rem 1.5rem; border-radius: 1rem;

@@ -446,6 +446,7 @@ function renderStats() {
     const unitMap = getUnitMap();
     const list = document.getElementById('record-list');
 
+
     if (state.records.length === 0) {
         list.innerHTML = `
             <div class="text-center py-12">
@@ -538,7 +539,26 @@ function renderStats() {
             </div>
         </div>`;
 
-    // ── 3. Type Distribution ──
+    // ── 3. Member Leaderboard ──
+    html += `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
+            <div class="text-xs font-bold text-zinc-500 mb-3">成员排行</div>
+            ${members.map((m, i) => {
+                const pct = Math.round(m.total_duration / maxUserDur * 100);
+                const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '🏅';
+                return `
+                    <div class="flex items-center gap-2 mb-2 last:mb-0">
+                        <span class="text-xs w-5 text-center">${rankIcon}</span>
+                        <span class="text-xs font-bold text-zinc-600 w-12 truncate">${escapeHtml(m.display_name)}</span>
+                        <div class="flex-1 h-4 bg-zinc-100 rounded-full overflow-hidden">
+                            <div class="h-full rounded-full transition-all" style="width:${pct}%;background:#10b981"></div>
+                        </div>
+                        <span class="text-[11px] font-bold text-zinc-500 w-14 text-right">${m.total_duration}min</span>
+                    </div>`;
+            }).join('')}
+        </div>`;
+
+    // ── 4. Type Distribution ──
     html += `
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
             <div class="text-xs font-bold text-zinc-500 mb-3">运动分布</div>
@@ -556,24 +576,6 @@ function renderStats() {
                             <div class="h-full rounded-full transition-all" style="width:${pct}%;background:${tc.accent}"></div>
                         </div>
                         <span class="text-[11px] font-bold text-zinc-500 w-24 text-right">${label}</span>
-                    </div>`;
-            }).join('')}
-        </div>`;
-
-    // ── 4. Member Leaderboard ──
-    html += `
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-zinc-50 mb-3">
-            <div class="text-xs font-bold text-zinc-500 mb-3">👑 成员排行</div>
-            ${members.map((m, i) => {
-                const pct = Math.round(m.total_duration / maxUserDur * 100);
-                return `
-                    <div class="flex items-center gap-2 mb-2 last:mb-0">
-                        <span class="text-xs font-bold w-5 text-zinc-400">${i + 1}</span>
-                        <span class="text-xs font-bold text-zinc-600 w-12 truncate">${escapeHtml(m.display_name)}</span>
-                        <div class="flex-1 h-4 bg-zinc-100 rounded-full overflow-hidden">
-                            <div class="h-full rounded-full bg-indigo-500 transition-all" style="width:${pct}%"></div>
-                        </div>
-                        <span class="text-[11px] font-bold text-zinc-500 w-14 text-right">${m.total_duration}min</span>
                     </div>`;
             }).join('')}
         </div>`;
