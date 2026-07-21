@@ -64,6 +64,13 @@
         .safari14 .confirm-box .confirm-btns { gap: 0; }
         .safari14 .confirm-box .confirm-btns > * + * { margin-left: 0.75rem; }
 
+        /* Safari 14: CSS variables in transform are ignored → use direct values */
+        .safari14 .translate-y-full { transform: translateY(100%); }
+        .safari14 .translate-y-0 { transform: translateY(0); }
+        .safari14 .-translate-y-1\/2 { transform: translateY(-50%); }
+        .safari14 .active\:scale-\[0\.98\]:active { transform: scale(0.98); }
+        .safari14 .group:active .group-active\:scale-95 { transform: scale(0.95); }
+
         .toast {
             position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
             z-index: 9999; padding: 0.75rem 1.5rem; border-radius: 1rem;
