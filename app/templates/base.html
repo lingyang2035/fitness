@@ -71,6 +71,9 @@
         .safari14 .active\:scale-\[0\.98\]:active { transform: scale(0.98); }
         .safari14 .group:active .group-active\:scale-95 { transform: scale(0.95); }
 
+        /* Safari 14: inset shorthand not supported → expand to longhands */
+        .safari14 .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+
         .toast {
             position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
             z-index: 9999; padding: 0.75rem 1.5rem; border-radius: 1rem;
@@ -119,7 +122,7 @@
 
         /* Confirm dialog */
         .confirm-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9999;
+            position: fixed; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.4); z-index: 9999;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
         }
