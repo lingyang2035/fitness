@@ -83,13 +83,15 @@ python3 run.py
 快速参考：
 
 ```bash
-# 本地打包
+# 本地打包（排除非运行时文件）
 tar -czf /tmp/fitness-release.tar.gz \
   --exclude='.git' --exclude='.claude' --exclude='data' \
   --exclude='__pycache__' --exclude='*.pyc' --exclude='*.db' \
   --exclude='node_modules' --exclude='doc' \
-  --exclude='.gitignore' --exclude='static/css/input.css' \
-  --exclude='static/mockup.png' --exclude='build_css.sh' \
+  --exclude='.gitignore' --exclude='README.md' \
+  --exclude='package.json' --exclude='package-lock.json' \
+  --exclude='tailwind.config.js' --exclude='build_css.sh' \
+  --exclude='static/css/input.css' --exclude='static/mockup.png' \
   -C /home/lingy/lyai-project/fitness .
 
 # 服务器部署
