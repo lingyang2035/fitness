@@ -18,3 +18,4 @@ package.json
 # 部署文档（含环境敏感信息，不同步到 GitHub）
 doc/
 release-*.tar.gz
+FamFit-*.zip
