@@ -14,7 +14,25 @@
     <meta property="og:image:width" content="512">
     <meta property="og:image:height" content="512">
     <script>
-    (function(){var ua=navigator.userAgent;var v=ua.match(/Version\/(\d+)\.(\d+)/);if(v&&/Safari/.test(ua)&&!/Chrome|CriOS/.test(ua)){var major=parseInt(v[1]),minor=parseInt(v[2]);if(major<14||(major===14&&minor===0)){document.documentElement.classList.add('safari14');}}})()
+    (function(){
+        var ua = navigator.userAgent;
+        var html = document.documentElement;
+        // iOS: detect by OS version (all iOS browsers use the same WebKit)
+        var ios = ua.match(/OS (\d+)_(\d+)/);
+        if (ios && parseInt(ios[1]) < 15) {
+            html.classList.add('safari14');
+        }
+        // Desktop Safari < 14.1 (no flex gap support)
+        if (!ios) {
+            var v = ua.match(/Version\/(\d+)\.(\d+)/);
+            if (v && /Safari/.test(ua) && !/Chrome|CriOS/.test(ua)) {
+                var major = parseInt(v[1]), minor = parseInt(v[2]);
+                if (major < 14 || (major === 14 && minor === 0)) {
+                    html.classList.add('safari14');
+                }
+            }
+        }
+    })()
     </script>
     <link rel="stylesheet" href="{{ app_prefix }}/static/css/tailwind.css">
     <script src="https://unpkg.com/lucide@0.472.0/dist/umd/lucide.min.js"></script>
@@ -73,6 +91,7 @@
 
         /* Safari 14: inset shorthand not supported → expand to longhands */
         .safari14 .inset-0 { top: 0; right: 0; bottom: 0; left: 0; }
+        .safari14 .inset-x-2 { left: 0.5rem; right: 0.5rem; }
 
         .toast {
             position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
@@ -143,6 +162,17 @@
     </style>
 </head>
 <body class="bg-zinc-100 min-h-screen font-sans antialiased">
+    <!-- Safety net: force safari14 on iOS < 15 if head detection missed it -->
+    <script>
+    (function(){
+        var ua = navigator.userAgent;
+        var html = document.documentElement;
+        var ios = ua.match(/OS (\d+)_(\d+)/);
+        if (ios && parseInt(ios[1]) < 15 && !html.classList.contains('safari14')) {
+            html.classList.add('safari14');
+        }
+    })();
+    </script>
     {% block body %}{% endblock %}
 
     <div id="toast-container"></div>

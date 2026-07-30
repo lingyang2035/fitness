@@ -46,7 +46,7 @@ const TYPE_COLORS = {
     '跟炼': { accent: '#FF3750', light: '#FFEEED' }, '力量': { accent: '#FF9F43', light: '#FFF5ED' },
 };
 const TYPE_EMOJI = {
-    '跑步':'🏃','游泳':'🏊','壶铃':'🏋️','引体向上':'💪','拉伸':'🧘','瑜伽':'🧘','跳绳':'🪢','球类':'⚽',
+    '跑步':'🏃','游泳':'🏊','壶铃':'🏋️','引体向上':'🧗','拉伸':'🧘','瑜伽':'🧘','跳绳':'🪢','球类':'⚽',
     '吊单杠':'🤸','靠墙站立':'🧍','徒步':'🥾','走路':'🚶','爬山':'⛰️',
     '羽毛球':'🏸','骑车':'🚴','跟炼':'📺','力量':'💪',
 };
@@ -190,7 +190,7 @@ function renderTypeGrid() {
         const sel = t.name === state.selectedType;
         const safeName = t.name.replace(/'/g, "&#39;");
         return `
-            <div data-type="${safeName}" onclick="selectType(this.dataset.type)" class="flex flex-col items-center gap-2 cursor-pointer group">
+            <div data-type="${safeName}" onclick="event.stopPropagation();selectType(this.dataset.type)" class="flex flex-col items-center gap-2 cursor-pointer group">
                 <div class="w-14 h-14 ${sel ? 'bg-indigo-50 text-indigo-600' : 'bg-zinc-50 text-zinc-700'} rounded-2xl flex items-center justify-center text-2xl shadow-sm group-active:scale-95 transition-transform">${emoji}</div>
                 <span class="text-xs text-zinc-700 font-semibold">${escapeHtml(t.name)}</span>
             </div>

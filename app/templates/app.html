@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="px-5 pt-5 pb-2 flex-shrink-0">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-black text-zinc-800 tracking-tight">{{ app_title }}<span class="text-[10px] font-normal text-zinc-300 ml-1.5">v1.1.5.1</span></h1>
+                <h1 class="text-xl font-black text-zinc-800 tracking-tight">{{ app_title }}<span class="text-[10px] font-normal text-zinc-300 ml-1.5">v1.5.2</span></h1>
                 <div class="flex items-center gap-1">
                     <button onclick="shareApp()" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors" title="分享">
                         <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -158,7 +158,7 @@
                 <button onclick="closeTypePanel()" class="p-1 hover:bg-indigo-50 rounded-full"><i data-lucide="chevron-left"></i></button>
                 <span class="font-bold text-lg text-zinc-800">选择运动</span>
             </div>
-            <div class="flex-1 p-6 overflow-y-auto">
+            <div class="flex-1 p-6 overflow-y-auto" onclick="closeTypePanel()">
                 <div class="grid grid-cols-3 gap-y-8 gap-x-4 text-center" id="type-grid"></div>
             </div>
         </div>
