@@ -3,7 +3,15 @@
 行为准则见全局 `~/.claude/CLAUDE.md`。
 
 ## iOS 14 兼容
-目标设备 iPhone XS iOS 14.4.2（WebKit）。已知陷阱：
+目标设备 iPhone XS iOS 14.4.2（WebKit）。
+
+**⚠️ 测试设备 ≠ 目标设备**：用户另一台 **iPhone 14 Pro**（现代 iOS）也在用，两台都要保证可用。
+- 同一现象在两台上**可能表现不同**，排查兼容问题前**先确认是在哪台设备上出现的**
+- **不要从本文件的"目标设备"反推用户的测试环境** —— 曾因此误判：把 iPhone 14 Pro 上的现象
+  归因成 iOS 14 的固有限制，从而否掉了一个本来可用的修法
+- 反之，也不要因一次现代设备上的失败就下调 iOS 14 的兼容标准（那台 XS 仍在使用）
+
+已知陷阱：
 - CSS 变量在 `transform` 中会被忽略（`var(--tw-translate-x)` → 整个 transform 无效）
 - `inset` 简写属性不支持（需展开为 `top/right/bottom/left`）
 - flex `gap` 不支持（已通过 `.safari14` 类用 margin 回退）
