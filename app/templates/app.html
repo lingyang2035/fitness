@@ -7,7 +7,7 @@
         <!-- Header -->
         <div class="px-5 pt-5 pb-2 flex-shrink-0">
             <div class="flex justify-between items-center mb-4">
-                <h1 class="text-xl font-black text-zinc-800 tracking-tight">{{ app_title }}<span class="text-[10px] font-normal text-zinc-300 ml-1.5">v1.1.5.2</span></h1>
+                <h1 class="text-xl font-black text-zinc-800 tracking-tight">{{ app_title }}<span class="text-[10px] font-normal text-zinc-300 ml-1.5">v1.1.6</span></h1>
                 <div class="flex items-center gap-1">
                     <button onclick="shareApp()" class="p-2 hover:bg-white rounded-xl text-zinc-400 transition-colors" title="分享">
                         <i data-lucide="share-2" class="w-4 h-4"></i>
@@ -220,6 +220,28 @@
                     </button>
                     <div id="invite-list" class="space-y-2"></div>
                 </div>
+            </div>
+        </div>
+
+        <!-- User Records Modal (view another user's records, read-only) -->
+        <div id="user-records-modal" class="absolute inset-0 bg-black/40 opacity-0 pointer-events-none z-50 flex items-end justify-center transition-opacity duration-300" onclick="closeUserDetail()">
+            <div id="user-records-content" class="bg-white w-full rounded-t-[32px] p-6 translate-y-full transition-transform duration-300 flex flex-col h-[70%]" onclick="event.stopPropagation()">
+                <div class="flex items-center mb-4">
+                    <button onclick="changeUserDetailPeriod(-1)" class="p-1.5 hover:bg-indigo-50 rounded-full transition-colors flex-shrink-0">
+                        <i data-lucide="chevron-left" class="w-4 h-4 text-zinc-400"></i>
+                    </button>
+                    <div class="flex-1 min-w-0 text-center">
+                        <h2 id="user-records-title" class="text-lg font-bold text-zinc-800 truncate"></h2>
+                        <div id="user-records-period" class="text-xs text-zinc-400"></div>
+                    </div>
+                    <button onclick="changeUserDetailPeriod(1)" class="p-1.5 hover:bg-indigo-50 rounded-full transition-colors flex-shrink-0">
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-zinc-400"></i>
+                    </button>
+                    <button onclick="closeUserDetail()" class="p-1.5 hover:bg-indigo-50 rounded-full transition-colors flex-shrink-0">
+                        <i data-lucide="x" class="w-5 h-5 text-zinc-400"></i>
+                    </button>
+                </div>
+                <div id="user-records-list" class="overflow-y-auto flex-1"></div>
             </div>
         </div>
     </div>

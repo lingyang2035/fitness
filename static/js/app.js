@@ -355,15 +355,23 @@ function togglePeriod() {
     loadRecords();
 }
 
+// 周期偏移：抽出来给主窗口和用户明细弹层共用，避免两处重复实现日期算法
+function shiftWeek(weekStart, delta) {
+    const d = new Date(weekStart + 'T00:00:00');
+    d.setDate(d.getDate() + delta * 7);
+    return getMonday(d);
+}
+
+function shiftMonth(monthStart, delta) {
+    const [y, m] = monthStart.split('-').map(Number);
+    return getMonthStart(new Date(y, m - 1 + delta, 1));
+}
+
 function changePeriod(delta) {
     if (state.period === 'week') {
-        const d = new Date(state.weekStart + 'T00:00:00');
-        d.setDate(d.getDate() + delta * 7);
-        state.weekStart = getMonday(d);
+        state.weekStart = shiftWeek(state.weekStart, delta);
     } else {
-        const [y, m] = state.monthStart.split('-').map(Number);
-        const d = new Date(y, m - 1 + delta, 1);
-        state.monthStart = getMonthStart(d);
+        state.monthStart = shiftMonth(state.monthStart, delta);
     }
     loadRecords();
 }
@@ -412,13 +420,13 @@ function renderRecords() {
                     <div class="w-1 flex-shrink-0 rounded-l-2xl" style="background:${tc.accent}"></div>
                     <div class="flex-1 p-4 flex items-center justify-between">
                         <div class="flex items-center gap-3 min-w-0">
-                            <div class="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs flex-shrink-0" style="background:${tc.light};color:${tc.accent}">
+                            <div class="w-9 h-9 rounded-full flex items-center justify-center font-semibold text-xs flex-shrink-0 cursor-pointer" style="background:${tc.light};color:${tc.accent}" onclick="openUserDetail(${r.user_id})">
                                 ${escapeHtml((r.user_display_name || '?')[0])}
                             </div>
                             <div class="min-w-0">
                                 <div class="text-sm font-bold text-zinc-800 truncate">${getTypeEmoji(r.exercise_type)} ${escapeHtml(r.exercise_type)}</div>
                                 <div class="text-xs text-zinc-400 truncate">
-                                    ${escapeHtml(r.user_display_name)} · ${r.recorded_at ? r.recorded_at.slice(5, 10) + ' ' + r.recorded_at.slice(11, 16) : ''}
+                                    <span class="cursor-pointer hover:text-indigo-600" onclick="openUserDetail(${r.user_id})">${escapeHtml(r.user_display_name)}</span> · ${r.recorded_at ? r.recorded_at.slice(5, 10) + ' ' + r.recorded_at.slice(11, 16) : ''}
                                 </div>
                             </div>
                         </div>
@@ -434,6 +442,112 @@ function renderRecords() {
                             ` : ''}
                         </div>
                     </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// --- User Records (bottom-sheet, read-only; period follows the main window) ---
+let userDetail = null;      // { userId, name, avatar, period, weekStart, monthStart }，仅弹层打开期间有效
+let userDetailReqId = 0;    // 请求序号：快速连翻时丢弃过期响应，防止列表与周期文字错位
+
+async function openUserDetail(userId) {
+    const rec = state.records.find(r => r.user_id === userId);
+    userDetail = {
+        userId: userId,
+        name: (rec && rec.user_display_name) || '用户',
+        avatar: (rec && rec.user_avatar_emoji) || '👤',
+        // 打开时继承主窗口周期；之后弹层与主窗口各自独立，互不影响
+        period: state.period,
+        weekStart: state.weekStart,
+        monthStart: state.monthStart
+    };
+    document.getElementById('user-records-title').innerText =
+        `${userDetail.avatar} ${userDetail.name} 的运动记录`;
+
+    const modal = document.getElementById('user-records-modal');
+    const content = document.getElementById('user-records-content');
+    modal.classList.remove('pointer-events-none', 'opacity-0');
+    modal.classList.add('opacity-100');
+    content.classList.remove('translate-y-full');
+    content.classList.add('translate-y-0');
+
+    await loadUserRecords();
+}
+
+// 弹层内切换周期：只改弹层自己的周期状态，不联动主窗口
+function changeUserDetailPeriod(delta) {
+    if (!userDetail) return;
+    if (userDetail.period === 'week') {
+        userDetail.weekStart = shiftWeek(userDetail.weekStart, delta);
+    } else {
+        userDetail.monthStart = shiftMonth(userDetail.monthStart, delta);
+    }
+    loadUserRecords();
+}
+
+async function loadUserRecords() {
+    if (!userDetail) return;
+    const list = document.getElementById('user-records-list');
+
+    document.getElementById('user-records-period').innerText = userDetail.period === 'week'
+        ? formatWeekRange(userDetail.weekStart)
+        : formatMonth(userDetail.monthStart);
+
+    const params = { user_id: userDetail.userId };
+    if (userDetail.period === 'week') {
+        params.week_start = userDetail.weekStart;
+    } else {
+        params.year_month = userDetail.monthStart;
+    }
+
+    const reqId = ++userDetailReqId;
+    list.innerHTML = '<p class="text-xs text-zinc-400 text-center py-6">加载中…</p>';
+    try {
+        const res = await API.getRecords(params);
+        if (reqId !== userDetailReqId) return;
+        renderUserRecords(res.records || []);
+    } catch (e) {
+        if (reqId !== userDetailReqId) return;
+        list.innerHTML = `<p class="text-xs text-zinc-400 text-center py-6">${escapeHtml(e.message)}</p>`;
+    }
+}
+
+function closeUserDetail() {
+    const modal = document.getElementById('user-records-modal');
+    const content = document.getElementById('user-records-content');
+    modal.classList.add('opacity-0');
+    modal.classList.remove('opacity-100');
+    content.classList.add('translate-y-full');
+    content.classList.remove('translate-y-0');
+    userDetail = null;
+    userDetailReqId++;      // 丢弃在途请求
+    setTimeout(() => modal.classList.add('pointer-events-none'), 300);
+}
+
+function renderUserRecords(records) {
+    const list = document.getElementById('user-records-list');
+    if (!records.length) {
+        list.innerHTML = '<p class="text-xs text-zinc-400 text-center py-6">暂无记录</p>';
+        return;
+    }
+    const unitMap = getUnitMap();
+    list.innerHTML = records.map(r => {
+        const unitType = unitMap[r.exercise_type];
+        const isTimeOnly = unitType === 'none';
+        const unit = getUnitLabel(r.exercise_type, unitType);
+        const tc = getTypeColor(r.exercise_type);
+        return `
+            <div class="flex items-center gap-3 py-2.5 border-b border-zinc-50">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center text-sm flex-shrink-0" style="background:${tc.light};color:${tc.accent}">${getTypeEmoji(r.exercise_type)}</div>
+                <div class="flex-1 min-w-0">
+                    <div class="text-sm font-bold text-zinc-800">${escapeHtml(r.exercise_type)}</div>
+                    <div class="text-xs text-zinc-400">${r.recorded_at ? r.recorded_at.slice(5, 10) + ' ' + r.recorded_at.slice(11, 16) : ''}</div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <div class="text-sm font-bold text-zinc-800">${r.duration_minutes} min</div>
+                    ${isTimeOnly ? '' : `<div class="text-xs text-zinc-400">${r.quantity} ${unit}</div>`}
                 </div>
             </div>
         `;
