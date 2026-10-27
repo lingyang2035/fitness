@@ -4,13 +4,13 @@
 
 ## 功能
 
-- 🏃 **18 种运动类型**：跑步、游泳、壶铃、引体向上、拉伸、瑜伽、跳绳、球类、吊单杠、靠墙站立、徒步、走路、爬山、羽毛球、骑车、跟炼、力量
+- 🏃 **15 种运动类型**：跑步、壶铃、拉伸、跳绳、游泳、引体向上、吊单杠、靠墙站立、徒步、走路、爬山、羽毛球、骑车、跟炼、力量
 - 📊 **周/月视图切换**：本周摘要卡片 + 统计页（成员排行、运动分布、每日时长柱状图）
-- 👨‍👩‍👧‍👦 **家庭成员模式**：邀请码注册，各自独立记录，支持删除自己或家人的记录
+- 👨‍👩‍👧‍👦 **家庭成员模式**：邀请码注册，各自独立记录，支持删除自己或家人的记录；点击动态里的头像/名字，可按周/月翻看该成员的运动明细
 - 📱 **iOS 风格交互**：逐项填写模式，滚轮选择时长，侧滑面板选择运动类型
 - 🔒 **管理后台**：用户管理、记录管理、操作日志
 - 🌐 **子路径部署**：支持 `/fitness/` 反向代理，自动检测路径前缀
-- 📲 **PWA**：可添加到主屏幕，Service Worker 离线缓存
+- 📲 **可添加到主屏幕**：提供 manifest；Service Worker 已停用（页面启动时会注销旧的注册）
 
 ## 技术栈
 
@@ -22,7 +22,7 @@
 | CSS | Tailwind CSS 3.4 | 通过 CLI 编译，按需生成 |
 | JS | Vanilla JS (ES6) | 无框架，直接操作 DOM |
 | 图标 | Lucide Icons | CDN 加载，按需替换 |
-| PWA | Service Worker | 动态生成 sw.js，版本化缓存 |
+| PWA | manifest | 动态生成 manifest.json；Service Worker 已停用 |
 | 反向代理 | Nginx | HTTPS 终端 + 子路径 `/fitness/` |
 
 ## 项目结构
@@ -83,21 +83,23 @@ python3 run.py
 快速参考：
 
 ```bash
-# 本地打包（排除非运行时文件）
-tar -czf /tmp/fitness-release.tar.gz \
+# 本地打包（排除非运行时文件）；包名约定 fitness-release-<版本号>-<月日>.tar.gz
+tar -czf /tmp/fitness-release-v1.1.6-1027.tar.gz \
   --exclude='.git' --exclude='.claude' --exclude='data' \
   --exclude='__pycache__' --exclude='*.pyc' --exclude='*.db' \
   --exclude='node_modules' --exclude='doc' \
-  --exclude='.gitignore' --exclude='README.md' \
+  --exclude='.gitignore' --exclude='README.md' --exclude='CLAUDE.md' \
+  --exclude='*ClaudeCode*' --exclude='FamFit-*.zip' \
   --exclude='package.json' --exclude='package-lock.json' \
   --exclude='tailwind.config.js' --exclude='build_css.sh' \
   --exclude='static/css/input.css' --exclude='static/mockup.png' \
   -C /home/lingy/lyai-project/fitness .
 
-# 服务器部署
-pkill -f waitress
-tar -xzf /tmp/fitness-release.tar.gz -C /opt/fitness
+# 服务器部署（上传后包名保持不变；发布前先备份数据库，完整步骤见部署指南）
+cd /opt/fitness
+tar -xzf /tmp/fitness-release-v1.1.6-1027.tar.gz
 export SESSION_SECURE=1
+pkill -f waitress
 nohup python3 -c "
 from waitress import serve
 from app import create_app
@@ -114,14 +116,15 @@ serve(create_app(), host='0.0.0.0', port=9101)
 
 ## iOS 14 兼容
 
-项目专门处理了 iOS 14.4.x（Safari 14.0.x / WebKit）的两个兼容问题：
+项目专门处理了 iOS 14.4.x（Safari 14.0.x / WebKit）的兼容问题：
 
-| 问题 | Safari 版本 | 修复方式 |
-|------|------------|---------|
-| CSS 变量在 `transform` 中被忽略 | < 14.1 | `.safari14` 类回退为直接值 `translateY(100%)` 等 |
-| `inset` 简写属性不支持 | < 14.1 | `.safari14 .inset-0` 展开为 `top/right/bottom/left: 0` |
+| 问题 | 影响范围 | 修复方式 |
+|------|---------|---------|
+| CSS 变量在 `transform` 中被忽略 | iOS < 15 / Safari < 14.1 | `.safari14` 类回退为直接值 `translateY(100%)` 等 |
+| `inset` 简写属性不支持 | iOS < 15 / Safari < 14.1 | `.safari14 .inset-0` 展开为 `top/right/bottom/left: 0` |
+| flex `gap` 不支持 | iOS < 15 / Safari < 14.1 | `.safari14` 类用 `margin` 回退 |
 
-UA 检测脚本在 `base.html` 中，检测到 Safari < 14.1 时给 `<html>` 添加 `safari14` 类。
+UA 检测脚本在 `base.html` 的 `<head>` 中（body 底部另有兜底）：iOS 按**系统版本（< 15）**判断，不区分浏览器 —— iOS 上所有浏览器共用同一 WebKit，表现一致；非 iOS 的桌面 Safari < 14.1 同样处理。命中时给 `<html>` 添加 `safari14` 类。
 
 ## 版本历史
 
