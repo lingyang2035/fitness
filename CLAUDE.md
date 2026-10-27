@@ -20,8 +20,30 @@
 
 ## 项目速查
 
-- **本地启动**：`python3 run.py` → http://localhost:5000（Flask 开发服务器，模板自动重载）
-- **生产部署**：打包 → SFTP 上传 → 服务器 `pkill -f waitress` → 解压 → 重启（详见 `doc/fitness_deploy.md`）
-- **打包命令**：见 README.md 生产部署章节，排除非运行时文件
-- **版本号**：`app/templates/app.html` 和 `login.html` 中各有一处
+- **本地启动**：`python3 run.py` → http://localhost:5000（Flask 开发服务器，默认 `FLASK_DEBUG=0`，**不自动重载**，改完需重启）
+- **生产部署**：流程以 `doc/fitness_deploy.md` 为准（打包 → SFTP 上传 → 服务器备份 → 解压 → 重启 → 验证），包名 `fitness-release-<版本号>-<月日>.tar.gz` 全程同名。打包命令见部署指南第 1 步
+- **版本号**：`app/templates/app.html`（小写 `v1.1.x`）和 `login.html`（大写 `V1.1.x`）中各有一处，grep 注意大小写
 - **应用元数据**：`app/__init__.py` 顶部的 `APP_NAME` 等常量（SSOT）
+
+## 改前端必做
+
+- **新增/修改 Tailwind class 后必须 `npm run build:css`**：Tailwind 只编译模板和 JS 里出现过的 class，漏编译则样式静默失效（不报错，只是样式不对）。自查脚本见 `doc/handover-用户运动明细.md` 附录
+- **改 `app.js` / `api.js` / `tailwind.css` 后必须重启服务**：`build_ts`（三者 mtime 最大值）只在 `create_app()` 时计算一次，不重启则 `?v=` 不变，手机仍吃旧缓存
+
+## 验证与发布纪律
+
+- **无自动化测试**：验证靠实际运行（`python3 run.py` + 两台手机 / curl）
+- **发布后必做**：在 `doc/fitness_deploy.md` 的「发布记录」追加一条，更新其顶部「当前生产版本」，打 git tag，并更新 README 版本历史
+
+## 文档索引（`doc/` 不入 git，仅本机）
+
+- `doc/fitness_deploy.md`：生产部署指南（环境、发版流程、回滚、发布记录）
+- `doc/handover-用户运动明细.md`：V1.1.6 弹层功能交接、踩坑、Tailwind 自查脚本
+- `doc/firewall_set_0623.md`：WSL2 端口转发开关（手机连本机服务）
+- `doc/archive/`：过期的历史文档，**不是现状**
+
+## 已知问题（未修）
+
+- `app/__init__.py` 的缓存头只匹配 `application/javascript`，而本机 Python 3.14 把 `.js` 识别为 `text/javascript`，导致 JS 实际是 `no-cache`（生产 Python 版本未核实）
+- `/sw.js` 动态路由是死代码（页面启动时会注销 Service Worker）
+- `/api/records` 的 `user_id` 参数无归属校验；点自己头像也会弹出只读面板（见 handover 未决项）
